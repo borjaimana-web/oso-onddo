@@ -1,7 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-<rect width="64" height="64" rx="15" fill="#075b43"/>
+<defs><clipPath id="circle"><circle cx="32" cy="32" r="32"/></clipPath></defs>
+<g clip-path="url(#circle)">
+<rect width="64" height="64" fill="#075b43"/>
 <path d="M27 35 C27 29 25 25 23 22 L41 22 C39 26 37 30 37 35 L39 48 C39 52 25 52 25 48 Z" fill="#f4ead7" stroke="#d8c5a5" stroke-width="1.5"/>
 <path d="M8 29 C9 15 19 7 32 7 C45 7 55 15 56 29 C47 34 17 34 8 29 Z" fill="#a86b3d" stroke="#754326" stroke-width="2"/>
 <path d="M11 29 C20 32 44 32 53 29" fill="none" stroke="#e7c19a" stroke-width="2"/>
 <ellipse cx="32" cy="48" rx="10" ry="3" fill="#e7dcc8"/>
-</svg>
+</g></svg>
