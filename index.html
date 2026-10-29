@@ -51,7 +51,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
     </div>
     <div id="map" aria-label="Mapa interactivo"></div>
     <div class="map-head">
-      <div class="legend"><b>Mapa de densidad</b><div class="gradient"></div>Menos puntos <span style="float:right">Más concentración</span><br>Halo radial por punto: <b>10 m</b>. La intensidad aumenta al solaparse.</div>
+      <div class="legend"><b>Mapa de densidad</b><div class="gradient"></div>Menos puntos <span style="float:right">Más concentración</span><br>Halo radial por punto: <b>10 m</b>. Intensidad un <b>20 % mayor</b>; los solapamientos se oscurecen.</div>
       <div class="map-actions"><button id="fitBtn">Ver todos</button><button id="exportVisibleBtn">Exportar filtrados GPX</button></div>
     </div>
   </section>
@@ -67,7 +67,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
     </section>
     <section class="panel">
       <h3>📍 Añadir / editar punto</h3>
-      <div class="field"><label for="pointName">Nombre del lugar</label><input id="pointName" placeholder="Ej. Robledal norte"></div>
+      <div class="field"><label>Nombre automático</label><div class="sub" id="autoNamePreview">Se asignará con la fecha y hora al guardar.</div></div>
       <div class="two">
         <div class="field"><label for="pointSpecies">Especie</label><select id="pointSpecies"><option>Boletus</option><option>Níscalo</option><option>Rebozuelo</option><option>Senderuela</option><option>Sin identificar</option></select></div>
         <div class="field"><label for="pointDate">Fecha</label><input id="pointDate" type="date"></div>
@@ -175,7 +175,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
     onRemove:function(map){map.off('move zoom resize',this._reset,this);this._canvas.remove();},
     _reset:function(){if(!this._map||!this._canvas)return;const size=this._map.getSize();const topLeft=this._map.containerPointToLayerPoint([0,0]);L.DomUtil.setPosition(this._canvas,topLeft);this._canvas.width=size.x;this._canvas.height=size.y;this._draw();},
     _draw:function(){const ctx=this._canvas.getContext('2d');ctx.clearRect(0,0,this._canvas.width,this._canvas.height);if(!heatVisible)return;
-      filtered.forEach(p=>{const c=this._map.latLngToContainerPoint([p.lat,p.lng]);const edge=this._map.latLngToContainerPoint([p.lat,p.lng+10/(111320*Math.cos(p.lat*Math.PI/180))]);const r=Math.max(1,Math.abs(edge.x-c.x));const g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,r);g.addColorStop(0,'rgba(63,190,76,0.25)');g.addColorStop(.35,'rgba(93,205,76,0.20)');g.addColorStop(.72,'rgba(226,207,57,0.12)');g.addColorStop(1,'rgba(226,207,57,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(c.x,c.y,r,0,Math.PI*2);ctx.fill();});
+      filtered.forEach(p=>{const c=this._map.latLngToContainerPoint([p.lat,p.lng]);const edge=this._map.latLngToContainerPoint([p.lat,p.lng+10/(111320*Math.cos(p.lat*Math.PI/180))]);const r=Math.max(1,Math.abs(edge.x-c.x));const g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,r);g.addColorStop(0,'rgba(63,190,76,0.30)');g.addColorStop(.35,'rgba(93,205,76,0.24)');g.addColorStop(.72,'rgba(226,207,57,0.144)');g.addColorStop(1,'rgba(226,207,57,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(c.x,c.y,r,0,Math.PI*2);ctx.fill();});
       // Repeated translucent gradients accumulate in overlap zones.
     }
   });
@@ -196,7 +196,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
     $('pointList').innerHTML=filtered.length?filtered.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(p=>`<div class="point-item"><span class="dot" style="background:${speciesColors[p.species]||'#2c9b68'}"></span><div class="meta"><strong>${esc(p.name)}</strong><span>${esc(p.species)} · ${esc(p.date)}</span><div class="sub">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</div></div><button onclick="window.zoomPoint('${p.id}')">Ver</button><button onclick="window.editPoint('${p.id}')">Editar</button></div>`).join(''):'<div class="sub">No hay puntos con estos filtros.</div>';
   }
   window.zoomPoint=id=>{const p=points.find(x=>x.id===id);if(p){map.setView([p.lat,p.lng],19);const m=markers.find(x=>x.getLatLng().lat===p.lat&&x.getLatLng().lng===p.lng);if(m)m.openPopup();}};
-  window.editPoint=id=>{const p=points.find(x=>x.id===id);if(!p)return;editId=id;pendingCoords={lat:p.lat,lng:p.lng};$('pointName').value=p.name;$('pointSpecies').value=p.species;$('pointDate').value=p.date;$('pointNotes').value=p.notes||'';$('coordsHint').textContent=`Coordenadas: ${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;map.setView([p.lat,p.lng],18);};
+  window.editPoint=id=>{const p=points.find(x=>x.id===id);if(!p)return;editId=id;pendingCoords={lat:p.lat,lng:p.lng};$('autoNamePreview').textContent=p.name+' (nombre conservado)';$('pointSpecies').value=p.species;$('pointDate').value=p.date;$('pointNotes').value=p.notes||'';$('coordsHint').textContent=`Coordenadas: ${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;map.setView([p.lat,p.lng],18);};
   $('addBtn').onclick=()=>{
     if(!navigator.geolocation){alert('Este navegador no ofrece geolocalización.');return;}
     picking=false;editId=null;pendingCoords=null;
@@ -212,17 +212,16 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
       const accuracy=Math.round(pos.coords.accuracy);
       $('coordsHint').textContent=`Ubicación GPS capturada: ${pendingCoords.lat.toFixed(6)}, ${pendingCoords.lng.toFixed(6)} · precisión aproximada ±${accuracy} m. Ya puedes guardar el punto.`;
       $('mapStatus').textContent=`Ubicación obtenida · precisión ±${accuracy} m`;
-      if(!$('pointName').value)$('pointName').value='Nuevo setal';
-      $('pointName').focus();
+      $('autoNamePreview').textContent='Ubicación capturada. El nombre se generará automáticamente al guardar.';
     },err=>{
       $('addBtn').disabled=false;
       const msg=err.code===1?'Permiso de ubicación denegado. Activa el permiso de ubicación para Oso Onddo! en los ajustes del navegador.':err.code===2?'No se pudo determinar tu ubicación. Comprueba que el GPS esté activado y vuelve a intentarlo.':'La ubicación tardó demasiado. Inténtalo de nuevo en un lugar con mejor señal GPS.';
       $('coordsHint').textContent=msg;$('mapStatus').textContent='No se pudo obtener el GPS';alert(msg);
     },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
   };
-  map.on('click',e=>{if(!picking)return;pendingCoords={lat:e.latlng.lat,lng:e.latlng.lng};picking=false;$('coordsHint').textContent=`Ubicación elegida: ${pendingCoords.lat.toFixed(6)}, ${pendingCoords.lng.toFixed(6)}`;if(!$('pointName').value)$('pointName').value='Nuevo setal';});
-  $('savePoint').onclick=()=>{if(!pendingCoords){alert('Pulsa “Añadir punto” para capturar tu ubicación GPS antes de guardar.');return;}const p={id:editId||('p-'+Date.now()),name:$('pointName').value.trim()||'Setal sin nombre',species:$('pointSpecies').value,date:$('pointDate').value||isoToday,notes:$('pointNotes').value.trim(),lat:pendingCoords.lat,lng:pendingCoords.lng};if(editId){points=points.map(x=>x.id===editId?p:x);}else points.push(p);saveLocal();editId=null;picking=false;$('pointName').value='';$('pointNotes').value='';$('coordsHint').textContent='Punto guardado. Pulsa “Añadir punto” para marcar otro.';render();};
-  $('cancelEdit').onclick=()=>{editId=null;picking=false;pendingCoords=null;$('pointName').value='';$('pointNotes').value='';$('coordsHint').textContent='Pulsa “Añadir punto” para capturar automáticamente tu ubicación GPS.';};
+  map.on('click',e=>{if(!picking)return;pendingCoords={lat:e.latlng.lat,lng:e.latlng.lng};picking=false;$('coordsHint').textContent=`Ubicación elegida: ${pendingCoords.lat.toFixed(6)}, ${pendingCoords.lng.toFixed(6)}`;$('autoNamePreview').textContent='Ubicación seleccionada. El nombre se generará automáticamente al guardar.';});
+  $('savePoint').onclick=()=>{if(!pendingCoords){alert('Pulsa “Añadir punto” para capturar tu ubicación GPS antes de guardar.');return;}const now=new Date();const pad=n=>String(n).padStart(2,'0');const autoName=editId?(points.find(x=>x.id===editId)?.name||`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} - ${pad(now.getHours())}:${pad(now.getMinutes())}`):`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} - ${pad(now.getHours())}:${pad(now.getMinutes())}`;const p={id:editId||('p-'+Date.now()),name:autoName,species:$('pointSpecies').value,date:$('pointDate').value||isoToday,notes:$('pointNotes').value.trim(),lat:pendingCoords.lat,lng:pendingCoords.lng};if(editId){points=points.map(x=>x.id===editId?p:x);}else points.push(p);saveLocal();editId=null;picking=false;$('pointNotes').value='';$('autoNamePreview').textContent='Se asignará con la fecha y hora al guardar.';$('coordsHint').textContent='Punto guardado. Pulsa “Añadir punto” para marcar otro.';render();};
+  $('cancelEdit').onclick=()=>{editId=null;picking=false;pendingCoords=null;$('autoNamePreview').textContent='Se asignará con la fecha y hora al guardar.';$('pointNotes').value='';$('coordsHint').textContent='Pulsa “Añadir punto” para capturar automáticamente tu ubicación GPS.';};
   $('applyFilters').onclick=render;$('resetFilters').onclick=()=>{$('fromDate').value='';$('toDate').value='';$('speciesFilter').value='';render();};
   $('heatBtn').onclick=()=>{heatVisible=!heatVisible;$('heatBtn').classList.toggle('active',heatVisible);$('heatBtn').textContent=heatVisible?'◉ Densidad':'○ Densidad';if(heatLayer._map)heatLayer._reset();render();};
   $('fitBtn').onclick=()=>{if(filtered.length){const b=L.latLngBounds(filtered.map(p=>[p.lat,p.lng]));map.fitBounds(b.pad(.2),{maxZoom:17});}};
