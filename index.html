@@ -73,7 +73,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
         <div class="field"><label for="pointDate">Fecha</label><input id="pointDate" type="date"></div>
       </div>
       <div class="field"><label for="pointNotes">Notas</label><textarea id="pointNotes" placeholder="Hábitat, cantidad, observaciones…"></textarea></div>
-      <div class="sub" id="coordsHint">Pulsa “Añadir punto” y luego el mapa para elegir las coordenadas.</div>
+      <div class="sub" id="coordsHint">Pulsa “Añadir punto” para capturar automáticamente tu ubicación GPS.</div>
       <div class="row" style="margin-top:10px"><button class="primary" id="savePoint">Guardar punto</button><button id="cancelEdit">Cancelar</button></div>
     </section>
     <section class="panel wide">
@@ -197,10 +197,32 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
   }
   window.zoomPoint=id=>{const p=points.find(x=>x.id===id);if(p){map.setView([p.lat,p.lng],19);const m=markers.find(x=>x.getLatLng().lat===p.lat&&x.getLatLng().lng===p.lng);if(m)m.openPopup();}};
   window.editPoint=id=>{const p=points.find(x=>x.id===id);if(!p)return;editId=id;pendingCoords={lat:p.lat,lng:p.lng};$('pointName').value=p.name;$('pointSpecies').value=p.species;$('pointDate').value=p.date;$('pointNotes').value=p.notes||'';$('coordsHint').textContent=`Coordenadas: ${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;map.setView([p.lat,p.lng],18);};
-  $('addBtn').onclick=()=>{picking=true;editId=null;pendingCoords=null;$('coordsHint').textContent='Ahora pulsa en el mapa donde quieras guardar el punto.';$('mapStatus').textContent='Modo de selección: pulsa en el mapa';$('pointName').focus();};
+  $('addBtn').onclick=()=>{
+    if(!navigator.geolocation){alert('Este navegador no ofrece geolocalización.');return;}
+    picking=false;editId=null;pendingCoords=null;
+    $('coordsHint').textContent='Obteniendo tu ubicación GPS…';
+    $('mapStatus').textContent='Buscando tu posición…';
+    $('addBtn').disabled=true;
+    navigator.geolocation.getCurrentPosition(pos=>{
+      pendingCoords={lat:pos.coords.latitude,lng:pos.coords.longitude};
+      $('addBtn').disabled=false;
+      map.setView([pendingCoords.lat,pendingCoords.lng],18);
+      if(window.currentGpsMarker)map.removeLayer(window.currentGpsMarker);
+      window.currentGpsMarker=L.circleMarker([pendingCoords.lat,pendingCoords.lng],{radius:9,color:'#fff',weight:3,fillColor:'#1688ff',fillOpacity:1}).addTo(map).bindPopup('Ubicación capturada para el nuevo punto').openPopup();
+      const accuracy=Math.round(pos.coords.accuracy);
+      $('coordsHint').textContent=`Ubicación GPS capturada: ${pendingCoords.lat.toFixed(6)}, ${pendingCoords.lng.toFixed(6)} · precisión aproximada ±${accuracy} m. Ya puedes guardar el punto.`;
+      $('mapStatus').textContent=`Ubicación obtenida · precisión ±${accuracy} m`;
+      if(!$('pointName').value)$('pointName').value='Nuevo setal';
+      $('pointName').focus();
+    },err=>{
+      $('addBtn').disabled=false;
+      const msg=err.code===1?'Permiso de ubicación denegado. Activa el permiso de ubicación para Oso Onddo! en los ajustes del navegador.':err.code===2?'No se pudo determinar tu ubicación. Comprueba que el GPS esté activado y vuelve a intentarlo.':'La ubicación tardó demasiado. Inténtalo de nuevo en un lugar con mejor señal GPS.';
+      $('coordsHint').textContent=msg;$('mapStatus').textContent='No se pudo obtener el GPS';alert(msg);
+    },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+  };
   map.on('click',e=>{if(!picking)return;pendingCoords={lat:e.latlng.lat,lng:e.latlng.lng};picking=false;$('coordsHint').textContent=`Ubicación elegida: ${pendingCoords.lat.toFixed(6)}, ${pendingCoords.lng.toFixed(6)}`;if(!$('pointName').value)$('pointName').value='Nuevo setal';});
-  $('savePoint').onclick=()=>{if(!pendingCoords){alert('Pulsa “Añadir punto” y selecciona una ubicación en el mapa.');return;}const p={id:editId||('p-'+Date.now()),name:$('pointName').value.trim()||'Setal sin nombre',species:$('pointSpecies').value,date:$('pointDate').value||isoToday,notes:$('pointNotes').value.trim(),lat:pendingCoords.lat,lng:pendingCoords.lng};if(editId){points=points.map(x=>x.id===editId?p:x);}else points.push(p);saveLocal();editId=null;picking=false;$('pointName').value='';$('pointNotes').value='';$('coordsHint').textContent='Punto guardado. Pulsa “Añadir punto” para marcar otro.';render();};
-  $('cancelEdit').onclick=()=>{editId=null;picking=false;pendingCoords=null;$('pointName').value='';$('pointNotes').value='';$('coordsHint').textContent='Pulsa “Añadir punto” y luego el mapa para elegir las coordenadas.';};
+  $('savePoint').onclick=()=>{if(!pendingCoords){alert('Pulsa “Añadir punto” para capturar tu ubicación GPS antes de guardar.');return;}const p={id:editId||('p-'+Date.now()),name:$('pointName').value.trim()||'Setal sin nombre',species:$('pointSpecies').value,date:$('pointDate').value||isoToday,notes:$('pointNotes').value.trim(),lat:pendingCoords.lat,lng:pendingCoords.lng};if(editId){points=points.map(x=>x.id===editId?p:x);}else points.push(p);saveLocal();editId=null;picking=false;$('pointName').value='';$('pointNotes').value='';$('coordsHint').textContent='Punto guardado. Pulsa “Añadir punto” para marcar otro.';render();};
+  $('cancelEdit').onclick=()=>{editId=null;picking=false;pendingCoords=null;$('pointName').value='';$('pointNotes').value='';$('coordsHint').textContent='Pulsa “Añadir punto” para capturar automáticamente tu ubicación GPS.';};
   $('applyFilters').onclick=render;$('resetFilters').onclick=()=>{$('fromDate').value='';$('toDate').value='';$('speciesFilter').value='';render();};
   $('heatBtn').onclick=()=>{heatVisible=!heatVisible;$('heatBtn').classList.toggle('active',heatVisible);$('heatBtn').textContent=heatVisible?'◉ Densidad':'○ Densidad';if(heatLayer._map)heatLayer._reset();render();};
   $('fitBtn').onclick=()=>{if(filtered.length){const b=L.latLngBounds(filtered.map(p=>[p.lat,p.lng]));map.fitBounds(b.pad(.2),{maxZoom:17});}};
