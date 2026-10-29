@@ -12,14 +12,14 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
 :root{--forest:#075b43;--forest2:#0b7656;--cream:#f5f7f1;--ink:#18342b;--muted:#66786f;--line:#dce5de;--orange:#f08a24}
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#edf2ed}
-header{background:linear-gradient(115deg,#064b38,#0b7554);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 3px 12px #173b2b24}
+*{box-sizing:border-box}html,body{height:100%;overflow:hidden}body{margin:0;display:flex;flex-direction:column;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#edf2ed}
+header{flex:0 0 auto;background:linear-gradient(115deg,#064b38,#0b7554);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 3px 12px #173b2b24;z-index:600}
 .brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;letter-spacing:.2px}.logo{width:38px;height:38px;border-radius:12px;background:#ffffff20;display:grid;place-items:center;font-size:23px}
 header small{display:block;font-size:11px;font-weight:500;opacity:.82}
-main{max-width:1200px;margin:auto;padding:16px;display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px}
-.map-card,.panel{background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 4px 16px #163d2810}
-.map-head{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.map-head h2{font-size:16px;margin:0}.sub{font-size:12px;color:var(--muted)}
-#map{height:min(69vh,650px);min-height:420px;background:#dce8d7}
+main{width:100%;max-width:none;flex:1;min-height:0;margin:0;padding:0;display:flex;gap:0}
+.map-card,.panel{background:white;border:0;border-radius:0;overflow:hidden;box-shadow:none}.map-card{position:relative;display:flex;flex-direction:column;flex:1;min-height:0}
+.map-head{flex:0 0 auto;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.map-head h2{font-size:16px;margin:0}.sub{font-size:12px;color:var(--muted)}
+#map{height:auto;min-height:0;flex:1;background:#dce8d7;width:100%}
 .map-actions{display:flex;gap:6px;flex-wrap:wrap}
 button,.file-button{font:inherit;border:1px solid #d4e0d8;background:white;color:var(--forest);border-radius:10px;padding:9px 11px;font-weight:700;cursor:pointer}
 button.primary{background:var(--forest);color:#fff;border-color:var(--forest)}button.active{background:#d9f1e5;border-color:#8bc8ac}button:hover,.file-button:hover{filter:brightness(.97)}
@@ -30,8 +30,10 @@ button.primary{background:var(--forest);color:#fff;border-color:var(--forest)}bu
 .notice{background:#fff8e9;border:1px solid #f1dfb5;color:#76521b;border-radius:10px;padding:10px;font-size:12px;line-height:1.45}
 footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
 .leaflet-popup-content-wrapper{border-radius:12px}.popup-title{font-weight:800;color:var(--forest)}.leaflet-control-attribution{font-size:9px!important}
-@media(max-width:850px){main{grid-template-columns:1fr;padding:10px}.side{display:grid;grid-template-columns:1fr 1fr}.side .wide{grid-column:1/-1}#map{height:58vh;min-height:380px}}
-@media(max-width:560px){header{padding:12px}.brand{font-size:18px}.side{display:flex}#map{height:54vh;min-height:350px}.map-head{align-items:flex-start}.two{grid-template-columns:1fr 1fr}}
+.menu-wrap{position:relative}.menu-trigger{font-size:22px;line-height:1;padding:7px 12px;min-width:42px}.quick-menu{position:absolute;right:0;top:calc(100% + 7px);z-index:1200;display:none;min-width:205px;padding:6px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px #173b2b30}.quick-menu.open{display:grid;gap:4px}.quick-menu button{text-align:left;border:0;background:white;color:var(--ink);padding:11px;border-radius:8px}.quick-menu button:hover{background:#edf5ef}
+.modal-backdrop{position:fixed;inset:0;z-index:2000;background:#10251dcc;display:none;align-items:center;justify-content:center;padding:16px}.modal-backdrop.open{display:flex}.modal-card{background:white;width:min(620px,100%);max-height:min(88vh,850px);overflow:auto;border-radius:18px;padding:17px;box-shadow:0 18px 60px #0005}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.modal-head h3{margin:0;font-size:17px}.modal-close{font-size:20px;padding:4px 10px}.modal-card #pointList{max-height:45vh}.map-actions.below-map{padding:0}.map-head.bottom-tools{position:absolute;right:10px;bottom:10px;z-index:500;padding:0;background:transparent;pointer-events:none}.map-head.bottom-tools .map-actions{pointer-events:auto}.map-head.bottom-tools .legend{display:none}.notice#osmStatus{position:absolute;left:10px;bottom:10px;z-index:500;max-width:min(440px,calc(100% - 90px));max-height:64px;overflow:auto;padding:7px 9px;font-size:10px;opacity:.94}.side{display:none}footer{display:none}
+@media(max-width:850px){main{padding:0}.side{display:none}#map{height:auto;min-height:0}.map-head{padding:7px 9px}.map-head h2{font-size:14px}}
+@media(max-width:560px){header{padding:8px 10px}.brand{font-size:17px}.logo{width:34px;height:34px}.map-head{align-items:center}.map-actions button{padding:8px 9px;font-size:13px}.menu-trigger{min-width:38px;padding:6px 10px}.sub{font-size:11px}.modal-card{max-height:90dvh}}
 </style>
 </head>
 <body>
@@ -46,44 +48,49 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
       <div class="map-actions">
         <button id="heatBtn" class="active">◉ Densidad</button>
         <button id="addBtn" class="primary">＋ Añadir punto</button>
+        <div class="menu-wrap"><button id="moreMenuBtn" class="menu-trigger" aria-label="Más opciones" aria-expanded="false">⋮</button>
+          <div id="quickMenu" class="quick-menu" role="menu">
+            <button type="button" id="openPointsBtn">📍 Mis puntos</button>
+            <button type="button" id="openFiltersBtn">🔎 Filtrar puntos</button>
+            <button type="button" id="openOsmBtn">🗺️ Cargar mapa .osm</button>
+          </div>
+        </div>
       </div>
     </div>
     <div id="map" aria-label="Mapa interactivo"></div>
-    <div class="map-actions" style="justify-content:flex-start;margin-top:10px"><label class="file-button" for="osmInput">🗺️ Cargar mapa .osm</label><input type="file" id="osmInput" accept=".osm,application/xml,text/xml" hidden></div>
-    <div class="map-head">
-      <div class="legend"><b>Mapa de densidad</b><div class="gradient"></div>Menos puntos <span style="float:right">Más concentración</span><br>Halo radial por punto: <b>10 m</b>. Intensidad un <b>20 % mayor</b>; los solapamientos se oscurecen.</div>
-      <div class="map-actions"><button id="fitBtn">Ver todos</button><button id="exportVisibleBtn">Exportar filtrados GPX</button></div>
+    <input type="file" id="osmInput" accept=".osm,application/xml,text/xml" hidden>
+    <div class="map-head bottom-tools">
+      <div class="map-actions"><button id="fitBtn">Ver todos</button></div>
     </div>
+    <div class="notice" id="osmStatus" style="margin:0 14px 12px"><b>Mapas locales:</b> carga un archivo .osm desde el menú de opciones. El archivo se procesa en este dispositivo; no se sube a ningún servidor. El mapa base online requiere Internet.</div>
   </section>
-  <aside class="side">
-    <section class="panel">
-      <h3>🔎 Filtrar puntos</h3>
-      <div class="field"><label for="fromDate">Desde</label><input type="date" id="fromDate"></div>
-      <div class="field"><label for="toDate">Hasta</label><input type="date" id="toDate"></div>
-      <div class="field"><label for="speciesFilter">Especie</label><select id="speciesFilter"><option value="">Todas las especies</option><option>Hongo</option><option>Níscalo</option><option>Ziza</option><option>Gibela</option><option>Sin identificar</option></select></div>
-      <div class="row"><button class="primary" id="applyFilters">Aplicar filtros</button><button id="resetFilters">Restablecer</button></div>
-      <div class="stat"><span>Puntos guardados</span><b id="totalCount">0</b></div>
-      <div class="stat"><span>Puntos visibles</span><b id="visibleCount">0</b></div>
-    </section>
-    <section class="panel">
-      <h3>📍 Añadir / editar punto</h3>
+  <div class="modal-backdrop" id="addModal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+    <section class="modal-card">
+      <div class="modal-head"><h3 id="addModalTitle">📍 Añadir / editar punto</h3><button class="modal-close" data-close="addModal" aria-label="Cerrar">×</button></div>
       <div class="field"><label>Nombre automático</label><div class="sub" id="autoNamePreview">Se asignará con la fecha y hora al guardar.</div></div>
-      <div class="two">
-        <div class="field"><label for="pointSpecies">Especie</label><select id="pointSpecies"><option>Hongo</option><option>Níscalo</option><option>Ziza</option><option>Gibela</option><option>Sin identificar</option></select></div>
-        <div class="field"><label for="pointDate">Fecha</label><input id="pointDate" type="date"></div>
-      </div>
+      <div class="two"><div class="field"><label for="pointSpecies">Especie</label><select id="pointSpecies"><option>Hongo</option><option>Níscalo</option><option>Ziza</option><option>Gibela</option><option>Sin identificar</option></select></div><div class="field"><label for="pointDate">Fecha</label><input id="pointDate" type="date"></div></div>
       <div class="field"><label for="pointNotes">Notas</label><textarea id="pointNotes" placeholder="Hábitat, cantidad, observaciones…"></textarea></div>
       <div class="sub" id="coordsHint">Pulsa “Añadir punto” para capturar automáticamente tu ubicación GPS.</div>
       <div class="row" style="margin-top:10px"><button class="primary" id="savePoint">Guardar punto</button><button id="cancelEdit">Cancelar</button></div>
     </section>
-    <section class="panel wide">
-      <h3>🗂️ Mis puntos</h3>
-      <div class="row" style="margin-bottom:9px"><label class="file-button" for="gpxInput">Importar GPX</label><input type="file" id="gpxInput" accept=".gpx,application/gpx+xml,application/xml,text/xml" multiple hidden><button id="exportAllBtn">Exportar todos GPX</button></div>
-      <div id="pointList"></div>
-      <div class="sub" style="margin-top:9px">Los datos de este prototipo se guardan en este navegador. Exporta GPX para hacer una copia.</div>
+  </div>
+  <div class="modal-backdrop" id="filtersModal" role="dialog" aria-modal="true" aria-labelledby="filtersModalTitle">
+    <section class="modal-card">
+      <div class="modal-head"><h3 id="filtersModalTitle">🔎 Filtrar puntos</h3><button class="modal-close" data-close="filtersModal" aria-label="Cerrar">×</button></div>
+      <div class="field"><label for="fromDate">Desde</label><input type="date" id="fromDate"></div>
+      <div class="field"><label for="toDate">Hasta</label><input type="date" id="toDate"></div>
+      <div class="field"><label for="speciesFilter">Especie</label><select id="speciesFilter"><option value="">Todas las especies</option><option>Hongo</option><option>Níscalo</option><option>Ziza</option><option>Gibela</option><option>Sin identificar</option></select></div>
+      <div class="row"><button class="primary" id="applyFilters">Aplicar filtros</button><button id="resetFilters">Restablecer</button><button id="exportVisibleBtn">Exportar filtrados GPX</button></div>
+      <div class="stat"><span>Puntos guardados</span><b id="totalCount">0</b></div><div class="stat"><span>Puntos visibles</span><b id="visibleCount">0</b></div>
     </section>
-    <div class="notice wide" id="osmStatus"><b>Mapas locales:</b> carga un archivo .osm para dibujar caminos, carreteras, edificios y otros elementos incluidos. El archivo se procesa en este dispositivo; no se sube a ningún servidor. El mapa base online requiere Internet. Los puntos iniciales son ficticios.</div>
-  </aside>
+  </div>
+  <div class="modal-backdrop" id="pointsModal" role="dialog" aria-modal="true" aria-labelledby="pointsModalTitle">
+    <section class="modal-card">
+      <div class="modal-head"><h3 id="pointsModalTitle">🗂️ Mis puntos</h3><button class="modal-close" data-close="pointsModal" aria-label="Cerrar">×</button></div>
+      <div class="row" style="margin-bottom:9px"><label class="file-button" for="gpxInput">Importar GPX</label><input type="file" id="gpxInput" accept=".gpx,application/gpx+xml,application/xml,text/xml" multiple hidden><button id="exportAllBtn">Exportar todos GPX</button></div>
+      <div id="pointList"></div><div class="sub" style="margin-top:9px">Los datos se guardan en este navegador. Exporta GPX para hacer una copia.</div>
+    </section>
+  </div>
 </main>
 <footer>Oso Onddo! · Prototipo interactivo · Mapa © OpenStreetMap contributors</footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -200,7 +207,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
   }
   window.deletePoint=id=>{const p=points.find(x=>x.id===id);if(!p)return;if(!confirm(`¿Eliminar el punto «${p.name}»? Esta acción no se puede deshacer.`))return;points=points.filter(x=>x.id!==id);saveLocal();render();};
   window.zoomPoint=id=>{const p=points.find(x=>x.id===id);if(p){map.setView([p.lat,p.lng],19);const m=markers.find(x=>x.getLatLng().lat===p.lat&&x.getLatLng().lng===p.lng);if(m)m.openPopup();}};
-  window.editPoint=id=>{const p=points.find(x=>x.id===id);if(!p)return;editId=id;pendingCoords={lat:p.lat,lng:p.lng};$('autoNamePreview').textContent=p.name+' (nombre conservado)';$('pointSpecies').value=p.species;$('pointDate').value=p.date;$('pointNotes').value=p.notes||'';$('coordsHint').textContent=`Coordenadas: ${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;map.setView([p.lat,p.lng],18);};
+  window.editPoint=id=>{const p=points.find(x=>x.id===id);if(!p)return;closeModal('pointsModal');openModal('addModal');editId=id;pendingCoords={lat:p.lat,lng:p.lng};$('autoNamePreview').textContent=p.name+' (nombre conservado)';$('pointSpecies').value=p.species;$('pointDate').value=p.date;$('pointNotes').value=p.notes||'';$('coordsHint').textContent=`Coordenadas: ${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;map.setView([p.lat,p.lng],18);};
   let gpsWatchId=null, lastGpsPosition=null;
   function bearingBetween(a,b){const r=Math.PI/180, p1=a.lat*r,p2=b.lat*r,dl=(b.lng-a.lng)*r;const y=Math.sin(dl)*Math.cos(p2),x=Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl);return (Math.atan2(y,x)*180/Math.PI+360)%360;}
   function showGpsArrow(lat,lng,heading){
@@ -219,7 +226,19 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
       lastGpsPosition=next;
     },()=>{}, {enableHighAccuracy:true,maximumAge:1500,timeout:15000});
   }
+  function openModal(id){$(id).classList.add('open');}
+  function closeModal(id){$(id).classList.remove('open');}
+  document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',()=>closeModal(btn.dataset.close)));
+  document.querySelectorAll('.modal-backdrop').forEach(backdrop=>backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeModal(backdrop.id);}));
+  $('moreMenuBtn').onclick=()=>{const open=$('quickMenu').classList.toggle('open');$('moreMenuBtn').setAttribute('aria-expanded',String(open));};
+  function closeQuickMenu(){$('quickMenu').classList.remove('open');$('moreMenuBtn').setAttribute('aria-expanded','false');}
+  $('openPointsBtn').onclick=()=>{closeQuickMenu();render();openModal('pointsModal');};
+  $('openFiltersBtn').onclick=()=>{closeQuickMenu();openModal('filtersModal');};
+  $('openOsmBtn').onclick=()=>{closeQuickMenu();$('osmInput').click();};
+  document.addEventListener('click',e=>{if(!$('quickMenu').contains(e.target)&&e.target!==$('moreMenuBtn'))closeQuickMenu();});
+
   $('addBtn').onclick=()=>{
+    openModal('addModal');
     if(!navigator.geolocation){alert('Este navegador no ofrece geolocalización.');return;}
     picking=false;editId=null;pendingCoords=null;
     $('coordsHint').textContent='Obteniendo tu ubicación GPS…';
@@ -243,9 +262,9 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
     },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
   };
   map.on('click',e=>{if(!picking)return;pendingCoords={lat:e.latlng.lat,lng:e.latlng.lng};picking=false;$('coordsHint').textContent=`Ubicación elegida: ${pendingCoords.lat.toFixed(6)}, ${pendingCoords.lng.toFixed(6)}`;$('autoNamePreview').textContent='Ubicación seleccionada. El nombre se generará automáticamente al guardar.';});
-  $('savePoint').onclick=()=>{if(!pendingCoords){alert('Pulsa “Añadir punto” para capturar tu ubicación GPS antes de guardar.');return;}const now=new Date();const pad=n=>String(n).padStart(2,'0');const autoName=editId?(points.find(x=>x.id===editId)?.name||`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} - ${pad(now.getHours())}:${pad(now.getMinutes())}`):`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} - ${pad(now.getHours())}:${pad(now.getMinutes())}`;const p={id:editId||('p-'+Date.now()),name:autoName,species:$('pointSpecies').value,date:$('pointDate').value||isoToday,notes:$('pointNotes').value.trim(),lat:pendingCoords.lat,lng:pendingCoords.lng};if(editId){points=points.map(x=>x.id===editId?p:x);}else points.push(p);saveLocal();editId=null;picking=false;$('pointNotes').value='';$('autoNamePreview').textContent='Se asignará con la fecha y hora al guardar.';$('coordsHint').textContent='Punto guardado. Pulsa “Añadir punto” para marcar otro.';render();};
-  $('cancelEdit').onclick=()=>{editId=null;picking=false;pendingCoords=null;$('autoNamePreview').textContent='Se asignará con la fecha y hora al guardar.';$('pointNotes').value='';$('coordsHint').textContent='Pulsa “Añadir punto” para capturar automáticamente tu ubicación GPS.';};
-  $('applyFilters').onclick=render;$('resetFilters').onclick=()=>{$('fromDate').value='';$('toDate').value='';$('speciesFilter').value='';render();};
+  $('savePoint').onclick=()=>{if(!pendingCoords){alert('Pulsa “Añadir punto” para capturar tu ubicación GPS antes de guardar.');return;}const now=new Date();const pad=n=>String(n).padStart(2,'0');const autoName=editId?(points.find(x=>x.id===editId)?.name||`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} - ${pad(now.getHours())}:${pad(now.getMinutes())}`):`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} - ${pad(now.getHours())}:${pad(now.getMinutes())}`;const p={id:editId||('p-'+Date.now()),name:autoName,species:$('pointSpecies').value,date:$('pointDate').value||isoToday,notes:$('pointNotes').value.trim(),lat:pendingCoords.lat,lng:pendingCoords.lng};if(editId){points=points.map(x=>x.id===editId?p:x);}else points.push(p);saveLocal();editId=null;picking=false;$('pointNotes').value='';$('autoNamePreview').textContent='Se asignará con la fecha y hora al guardar.';$('coordsHint').textContent='Punto guardado. Pulsa “Añadir punto” para marcar otro.';render();closeModal('addModal');};
+  $('cancelEdit').onclick=()=>{editId=null;picking=false;pendingCoords=null;$('autoNamePreview').textContent='Se asignará con la fecha y hora al guardar.';$('pointNotes').value='';$('coordsHint').textContent='Pulsa “Añadir punto” para capturar automáticamente tu ubicación GPS.';closeModal('addModal');};
+  $('applyFilters').onclick=()=>{render();closeModal('filtersModal');};$('resetFilters').onclick=()=>{$('fromDate').value='';$('toDate').value='';$('speciesFilter').value='';render();};
   $('heatBtn').onclick=()=>{heatVisible=!heatVisible;$('heatBtn').classList.toggle('active',heatVisible);$('heatBtn').textContent=heatVisible?'◉ Densidad':'○ Densidad';if(heatLayer._map)heatLayer._reset();render();};
   $('fitBtn').onclick=()=>{if(filtered.length){const b=L.latLngBounds(filtered.map(p=>[p.lat,p.lng]));map.fitBounds(b.pad(.2),{maxZoom:17});}};
   function exportGPX(arr,filename){const escXml=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');

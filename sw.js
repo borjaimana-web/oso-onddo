@@ -1,4 +1,4 @@
-const CACHE = "oso-onddo-shell-v2";
+const CACHE = "oso-onddo-shell-v4-fixed-map";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icons/boletus.svg", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
