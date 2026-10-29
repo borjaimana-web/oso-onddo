@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#075b43">
+<meta name="description" content="Oso Onddo! Guarda tus setales, visualiza densidades y gestiona puntos GPX.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/boletus.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Oso Onddo!</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root{--forest:#075b43;--forest2:#0b7656;--cream:#f5f7f1;--ink:#18342b;--muted:#66786f;--line:#dce5de;--orange:#f08a24}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#edf2ed}
+header{background:linear-gradient(115deg,#064b38,#0b7554);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 3px 12px #173b2b24}
+.brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;letter-spacing:.2px}.logo{width:38px;height:38px;border-radius:12px;background:#ffffff20;display:grid;place-items:center;font-size:23px}
+header small{display:block;font-size:11px;font-weight:500;opacity:.82}
+main{max-width:1200px;margin:auto;padding:16px;display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px}
+.map-card,.panel{background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 4px 16px #163d2810}
+.map-head{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.map-head h2{font-size:16px;margin:0}.sub{font-size:12px;color:var(--muted)}
+#map{height:min(69vh,650px);min-height:420px;background:#dce8d7}
+.map-actions{display:flex;gap:6px;flex-wrap:wrap}
+button,.file-button{font:inherit;border:1px solid #d4e0d8;background:white;color:var(--forest);border-radius:10px;padding:9px 11px;font-weight:700;cursor:pointer}
+button.primary{background:var(--forest);color:#fff;border-color:var(--forest)}button.active{background:#d9f1e5;border-color:#8bc8ac}button:hover,.file-button:hover{filter:brightness(.97)}
+.side{display:flex;flex-direction:column;gap:14px}.panel{padding:15px}.panel h3{font-size:15px;margin:0 0 12px}.field{margin:11px 0}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;border:1px solid #d7e1d9;border-radius:9px;padding:9px;font:inherit;background:#fff;color:var(--ink)}.field textarea{resize:vertical;min-height:62px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eef2ee;font-size:13px}.stat:last-child{border:0}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.legend{font-size:12px;color:var(--muted);line-height:1.5}.gradient{height:10px;border-radius:99px;background:linear-gradient(90deg,#66bb6a00,#66bb6a55,#f4df4977,#f08a2488,#df342d99);margin:8px 0}
+#pointList{display:flex;flex-direction:column;gap:7px;max-height:230px;overflow:auto}.point-item{display:flex;align-items:center;gap:8px;border:1px solid #edf1ed;border-radius:10px;padding:8px;font-size:12px}.point-item .meta{flex:1;min-width:0}.point-item strong{display:block;font-size:13px}.point-item button{padding:5px 8px;font-size:11px}
+.notice{background:#fff8e9;border:1px solid #f1dfb5;color:#76521b;border-radius:10px;padding:10px;font-size:12px;line-height:1.45}
+footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
+.leaflet-popup-content-wrapper{border-radius:12px}.popup-title{font-weight:800;color:var(--forest)}.leaflet-control-attribution{font-size:9px!important}
+@media(max-width:850px){main{grid-template-columns:1fr;padding:10px}.side{display:grid;grid-template-columns:1fr 1fr}.side .wide{grid-column:1/-1}#map{height:58vh;min-height:380px}}
+@media(max-width:560px){header{padding:12px}.brand{font-size:18px}.side{display:flex}#map{height:54vh;min-height:350px}.map-head{align-items:flex-start}.two{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo" aria-label="Boletus"><svg viewBox="0 0 64 64" width="30" height="30" role="img" aria-label="Boletus"><path d="M27 35 C27 29 25 25 23 22 L41 22 C39 26 37 30 37 35 L39 48 C39 52 25 52 25 48 Z" fill="#f4ead7" stroke="#d8c5a5" stroke-width="1.5"/><path d="M8 29 C9 15 19 7 32 7 C45 7 55 15 56 29 C47 34 17 34 8 29 Z" fill="#a86b3d" stroke="#754326" stroke-width="2"/><path d="M11 29 C20 32 44 32 53 29" fill="none" stroke="#e7c19a" stroke-width="2"/><ellipse cx="32" cy="48" rx="10" ry="3" fill="#e7dcc8"/></svg></div><div>Oso Onddo!</div></div>
+  <div class="row"><button id="gpsBtn" title="Usar mi ubicación">◎ Mi GPS</button></div>
+</header>
+<main>
+  <section class="map-card">
+    <div class="map-head">
+      <div><h2>Mapa de setales</h2><div class="sub" id="mapStatus">Puntos de demostración · activa el sombreado</div></div>
+      <div class="map-actions">
+        <button id="heatBtn" class="active">◉ Densidad</button>
+        <label class="file-button" for="osmInput">🗺️ Cargar mapa .osm</label><input type="file" id="osmInput" accept=".osm,application/xml,text/xml" hidden>
+        <button id="addBtn" class="primary">＋ Añadir punto</button>
+      </div>
+    </div>
+    <div id="map" aria-label="Mapa interactivo"></div>
+    <div class="map-head">
+      <div class="legend"><b>Mapa de densidad</b><div class="gradient"></div>Menos puntos <span style="float:right">Más concentración</span><br>Halo radial por punto: <b>10 m</b>. La intensidad aumenta al solaparse.</div>
+      <div class="map-actions"><button id="fitBtn">Ver todos</button><button id="exportVisibleBtn">Exportar filtrados GPX</button></div>
+    </div>
+  </section>
+  <aside class="side">
+    <section class="panel">
+      <h3>🔎 Filtrar puntos</h3>
+      <div class="field"><label for="fromDate">Desde</label><input type="date" id="fromDate"></div>
+      <div class="field"><label for="toDate">Hasta</label><input type="date" id="toDate"></div>
+      <div class="field"><label for="speciesFilter">Especie</label><select id="speciesFilter"><option value="">Todas las especies</option><option>Boletus</option><option>Níscalo</option><option>Rebozuelo</option><option>Senderuela</option><option>Sin identificar</option></select></div>
+      <div class="row"><button class="primary" id="applyFilters">Aplicar filtros</button><button id="resetFilters">Restablecer</button></div>
+      <div class="stat"><span>Puntos guardados</span><b id="totalCount">0</b></div>
+      <div class="stat"><span>Puntos visibles</span><b id="visibleCount">0</b></div>
+    </section>
+    <section class="panel">
+      <h3>📍 Añadir / editar punto</h3>
+      <div class="field"><label for="pointName">Nombre del lugar</label><input id="pointName" placeholder="Ej. Robledal norte"></div>
+      <div class="two">
+        <div class="field"><label for="pointSpecies">Especie</label><select id="pointSpecies"><option>Boletus</option><option>Níscalo</option><option>Rebozuelo</option><option>Senderuela</option><option>Sin identificar</option></select></div>
+        <div class="field"><label for="pointDate">Fecha</label><input id="pointDate" type="date"></div>
+      </div>
+      <div class="field"><label for="pointNotes">Notas</label><textarea id="pointNotes" placeholder="Hábitat, cantidad, observaciones…"></textarea></div>
+      <div class="sub" id="coordsHint">Pulsa “Añadir punto” y luego el mapa para elegir las coordenadas.</div>
+      <div class="row" style="margin-top:10px"><button class="primary" id="savePoint">Guardar punto</button><button id="cancelEdit">Cancelar</button></div>
+    </section>
+    <section class="panel wide">
+      <h3>🗂️ Mis puntos</h3>
+      <div class="row" style="margin-bottom:9px"><label class="file-button" for="gpxInput">Importar GPX</label><input type="file" id="gpxInput" accept=".gpx,application/gpx+xml,application/xml,text/xml" multiple hidden><button id="exportAllBtn">Exportar todos GPX</button></div>
+      <div id="pointList"></div>
+      <div class="sub" style="margin-top:9px">Los datos de este prototipo se guardan en este navegador. Exporta GPX para hacer una copia.</div>
+    </section>
+    <div class="notice wide" id="osmStatus"><b>Mapas locales:</b> carga un archivo .osm para dibujar caminos, carreteras, edificios y otros elementos incluidos. El archivo se procesa en este dispositivo; no se sube a ningún servidor. El mapa base online requiere Internet. Los puntos iniciales son ficticios.</div>
+  </aside>
+</main>
+<footer>Oso Onddo! · Prototipo interactivo · Mapa © OpenStreetMap contributors</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const today = new Date(); const isoToday = today.toISOString().slice(0,10);
+  $('pointDate').value = isoToday;
+  const speciesColors = {'Boletus':'#75513b','Níscalo':'#ee7628','Rebozuelo':'#e7b522','Senderuela':'#8064d8','Sin identificar':'#2c9b68'};
+  const seed = [
+    ['Robledal norte','Boletus','2026-10-12',43.302,-1.955,'Junto a robles, suelo húmedo.'],
+    ['Pinar del camino','Níscalo','2026-10-09',43.304,-1.951,'Pinar joven.'],
+    ['Claro del arroyo','Rebozuelo','2026-10-03',43.300,-1.950,'Zona con musgo.'],
+    ['Ladera oeste','Boletus','2026-09-22',43.299,-1.956,'Varios ejemplares.'],
+    ['Sendero viejo','Senderuela','2026-10-15',43.305,-1.957,'Borde del sendero.'],
+    ['Robledal sur','Boletus','2026-10-12',43.298,-1.952,'Dos grupos cercanos.'],
+    ['Pinar alto','Níscalo','2026-08-28',43.307,-1.953,'Debajo de pinos.'],
+    ['Zona de helechos','Sin identificar','2026-10-18',43.301,-1.958,'Pendiente de identificar.'],
+    ['Linde del bosque','Rebozuelo','2026-09-18',43.306,-1.949,'Suelo húmedo.'],
+    ['Pequeño claro','Boletus','2026-10-20',43.297,-1.958,'Ejemplo de punto.']
+  ];
+  let points = [];
+  try { points = JSON.parse(localStorage.getItem('oso_onddo_points') || 'null') || seed.map((p,i)=>({id:'demo-'+i,name:p[0],species:p[1],date:p[2],lat:p[3],lng:p[4],notes:p[5]})); } catch(e) { points=seed.map((p,i)=>({id:'demo-'+i,name:p[0],species:p[1],date:p[2],lat:p[3],lng:p[4],notes:p[5]})); }
+  let filtered = points.slice(), markers = [], heatLayer, picking = false, pendingCoords = null, editId = null, heatVisible = true;
+  const map = L.map('map',{zoomControl:true}).setView([43.302,-1.953],15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+  let localOsmLayer = null;
+  const osmStyles = tags => {
+    if(tags.building) return {color:'#9b8575',weight:1,fillColor:'#c9b9a8',fillOpacity:.55};
+    if(tags.natural==='water'||tags.waterway==='riverbank') return {color:'#5a9dc5',weight:1.5,fillColor:'#8fc8e8',fillOpacity:.65};
+    if(tags.leisure==='park'||tags.landuse==='forest'||tags.natural==='wood') return {color:'#57915a',weight:1,fillColor:'#9ac58a',fillOpacity:.45};
+    if(tags.highway==='motorway'||tags.highway==='trunk'||tags.highway==='primary') return {color:'#d58b56',weight:3};
+    if(tags.highway) return {color: tags.highway==='path'||tags.highway==='footway'||tags.highway==='track' ? '#987b52' : '#b8a18c',weight: tags.highway==='path'||tags.highway==='footway'?2:2.5,dashArray:tags.highway==='path'||tags.highway==='footway'?'4 4':null};
+    if(tags.waterway) return {color:'#4f9ac6',weight:2};
+    return {color:'#8b9d88',weight:1,fillColor:'#b7c8aa',fillOpacity:.2};
+  };
+  function loadOsmFile(file){
+    if(!file) return;
+    $('osmStatus').textContent = `Leyendo ${file.name}…`;
+    file.text().then(text=>{
+      const xml = new DOMParser().parseFromString(text,'application/xml');
+      if(xml.querySelector('parsererror') || !xml.documentElement || xml.documentElement.tagName.toLowerCase()!=='osm') throw new Error('El archivo no es XML OSM válido. Selecciona un archivo .osm, no .pbf ni .mbtiles.');
+      const nodes = new Map();
+      xml.querySelectorAll('node').forEach(n=>{
+        const lat=Number(n.getAttribute('lat')), lon=Number(n.getAttribute('lon'));
+        if(Number.isFinite(lat)&&Number.isFinite(lon)) nodes.set(n.getAttribute('id'),{lat,lng:lon,tags:readTags(n)});
+      });
+      function readTags(el){const out={};el.querySelectorAll(':scope > tag').forEach(t=>out[t.getAttribute('k')]=t.getAttribute('v'));return out;}
+      const group = L.featureGroup();
+      let drawn=0, ways=0, places=0;
+      xml.querySelectorAll('way').forEach(w=>{
+        const coords=[];
+        w.querySelectorAll(':scope > nd').forEach(nd=>{const n=nodes.get(nd.getAttribute('ref'));if(n)coords.push([n.lat,n.lng]);});
+        if(coords.length<2)return;
+        const tags=readTags(w);
+        if(!Object.keys(tags).length)return;
+        const closed=coords.length>3&&coords[0][0]===coords[coords.length-1][0]&&coords[0][1]===coords[coords.length-1][1];
+        const polygon=closed&&!!(tags.building||tags.landuse||tags.leisure||tags.natural||tags.amenity||tags.waterway==='riverbank');
+        const style=osmStyles(tags);
+        const layer=polygon?L.polygon(coords,style):L.polyline(coords,style);
+        const label=tags.name||tags.highway||tags.building||tags.natural||tags.landuse||tags.waterway||'Elemento OSM';
+        layer.bindPopup(`<b>${esc(label)}</b><br><span>${esc(Object.entries(tags).slice(0,8).map(([k,v])=>k+'='+v).join(' · '))}</span>`);
+        group.addLayer(layer);drawn++;ways++;
+      });
+      xml.querySelectorAll('node').forEach(n=>{
+        const tags=readTags(n);
+        if(!Object.keys(tags).length)return;
+        const lat=Number(n.getAttribute('lat')),lng=Number(n.getAttribute('lon'));
+        if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
+        if(!(tags.name||tags.amenity||tags.shop||tags.tourism||tags.natural||tags.place||tags.highway==='bus_stop'))return;
+        const marker=L.circleMarker([lat,lng],{radius:3,color:'#fff',weight:1,fillColor:'#6d7868',fillOpacity:.9});
+        marker.bindPopup(`<b>${esc(tags.name||tags.amenity||tags.natural||tags.place||'Elemento OSM')}</b><br><span>${esc(Object.entries(tags).slice(0,8).map(([k,v])=>k+'='+v).join(' · '))}</span>`);
+        group.addLayer(marker);drawn++;places++;
+      });
+      if(!drawn) throw new Error('El archivo se ha leído, pero no contiene caminos ni elementos etiquetados que se puedan dibujar.');
+      if(localOsmLayer) map.removeLayer(localOsmLayer);
+      localOsmLayer=group.addTo(map);
+      const bounds=group.getBounds();
+      if(bounds.isValid())map.fitBounds(bounds.pad(.06),{maxZoom:17});
+      $('osmStatus').innerHTML=`<b>Mapa local cargado:</b> ${esc(file.name)} · ${ways} caminos/áreas y ${places} elementos puntuales. <button type="button" id="clearOsmBtn">Quitar mapa local</button><br>El mapa local se dibuja encima del mapa base. Los puntos de setas se conservan.`;
+      $('clearOsmBtn').onclick=()=>{if(localOsmLayer)map.removeLayer(localOsmLayer);localOsmLayer=null;$('osmStatus').textContent='Mapa local retirado. Puedes cargar otro archivo .osm.';};
+    }).catch(err=>{$('osmStatus').textContent='No se pudo cargar el mapa: '+err.message;});
+  }
+  $('osmInput').addEventListener('change',e=>{loadOsmFile(e.target.files[0]);e.target.value='';});
+
+  // Canvas heat layer: each location creates a radial halo whose ground radius is 10 metres.
+  const Heat = L.Layer.extend({
+    onAdd:function(map){this._map=map;this._canvas=L.DomUtil.create('canvas','leaflet-heat-canvas');this._canvas.style.position='absolute';this._canvas.style.pointerEvents='none';this._canvas.style.zIndex=350;map.getPanes().overlayPane.appendChild(this._canvas);map.on('move zoom resize',this._reset,this);this._reset();},
+    onRemove:function(map){map.off('move zoom resize',this._reset,this);this._canvas.remove();},
+    _reset:function(){if(!this._map||!this._canvas)return;const size=this._map.getSize();const topLeft=this._map.containerPointToLayerPoint([0,0]);L.DomUtil.setPosition(this._canvas,topLeft);this._canvas.width=size.x;this._canvas.height=size.y;this._draw();},
+    _draw:function(){const ctx=this._canvas.getContext('2d');ctx.clearRect(0,0,this._canvas.width,this._canvas.height);if(!heatVisible)return;
+      filtered.forEach(p=>{const c=this._map.latLngToContainerPoint([p.lat,p.lng]);const edge=this._map.latLngToContainerPoint([p.lat,p.lng+10/(111320*Math.cos(p.lat*Math.PI/180))]);const r=Math.max(1,Math.abs(edge.x-c.x));const g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,r);g.addColorStop(0,'rgba(63,190,76,0.25)');g.addColorStop(.35,'rgba(93,205,76,0.20)');g.addColorStop(.72,'rgba(226,207,57,0.12)');g.addColorStop(1,'rgba(226,207,57,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(c.x,c.y,r,0,Math.PI*2);ctx.fill();});
+      // Repeated translucent gradients accumulate in overlap zones.
+    }
+  });
+  heatLayer = new Heat(); heatLayer.addTo(map);
+
+  function saveLocal(){try{localStorage.setItem('oso_onddo_points',JSON.stringify(points));}catch(e){}}
+  function filteredPoints(){const from=$('fromDate').value,to=$('toDate').value,sp=$('speciesFilter').value;return points.filter(p=>(!from||p.date>=from)&&(!to||p.date<=to)&&(!sp||p.species===sp));}
+  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function render(){
+    filtered=filteredPoints();markers.forEach(m=>map.removeLayer(m));markers=[];
+    filtered.forEach(p=>{const color=speciesColors[p.species]||'#2c9b68';const marker=L.circleMarker([p.lat,p.lng],{radius:7,color:'#fff',weight:2,fillColor:color,fillOpacity:1}).addTo(map);
+      marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div>${esc(p.species)} · ${esc(p.date)}</div><div>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</div><p>${esc(p.notes||'Sin notas')}</p><button onclick="window.editPoint('${p.id}')">Editar punto</button>`);
+      markers.push(marker);
+    });
+    if(heatLayer._map)heatLayer._reset();
+    $('totalCount').textContent=points.length;$('visibleCount').textContent=filtered.length;
+    $('mapStatus').textContent=`${filtered.length} puntos visibles · ${heatVisible?'sombreado activado':'sombreado desactivado'}`;
+    $('pointList').innerHTML=filtered.length?filtered.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(p=>`<div class="point-item"><span class="dot" style="background:${speciesColors[p.species]||'#2c9b68'}"></span><div class="meta"><strong>${esc(p.name)}</strong><span>${esc(p.species)} · ${esc(p.date)}</span><div class="sub">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</div></div><button onclick="window.zoomPoint('${p.id}')">Ver</button><button onclick="window.editPoint('${p.id}')">Editar</button></div>`).join(''):'<div class="sub">No hay puntos con estos filtros.</div>';
+  }
+  window.zoomPoint=id=>{const p=points.find(x=>x.id===id);if(p){map.setView([p.lat,p.lng],19);const m=markers.find(x=>x.getLatLng().lat===p.lat&&x.getLatLng().lng===p.lng);if(m)m.openPopup();}};
+  window.editPoint=id=>{const p=points.find(x=>x.id===id);if(!p)return;editId=id;pendingCoords={lat:p.lat,lng:p.lng};$('pointName').value=p.name;$('pointSpecies').value=p.species;$('pointDate').value=p.date;$('pointNotes').value=p.notes||'';$('coordsHint').textContent=`Coordenadas: ${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;map.setView([p.lat,p.lng],18);};
+  $('addBtn').onclick=()=>{picking=true;editId=null;pendingCoords=null;$('coordsHint').textContent='Ahora pulsa en el mapa donde quieras guardar el punto.';$('mapStatus').textContent='Modo de selección: pulsa en el mapa';$('pointName').focus();};
+  map.on('click',e=>{if(!picking)return;pendingCoords={lat:e.latlng.lat,lng:e.latlng.lng};picking=false;$('coordsHint').textContent=`Ubicación elegida: ${pendingCoords.lat.toFixed(6)}, ${pendingCoords.lng.toFixed(6)}`;if(!$('pointName').value)$('pointName').value='Nuevo setal';});
+  $('savePoint').onclick=()=>{if(!pendingCoords){alert('Pulsa “Añadir punto” y selecciona una ubicación en el mapa.');return;}const p={id:editId||('p-'+Date.now()),name:$('pointName').value.trim()||'Setal sin nombre',species:$('pointSpecies').value,date:$('pointDate').value||isoToday,notes:$('pointNotes').value.trim(),lat:pendingCoords.lat,lng:pendingCoords.lng};if(editId){points=points.map(x=>x.id===editId?p:x);}else points.push(p);saveLocal();editId=null;picking=false;$('pointName').value='';$('pointNotes').value='';$('coordsHint').textContent='Punto guardado. Pulsa “Añadir punto” para marcar otro.';render();};
+  $('cancelEdit').onclick=()=>{editId=null;picking=false;pendingCoords=null;$('pointName').value='';$('pointNotes').value='';$('coordsHint').textContent='Pulsa “Añadir punto” y luego el mapa para elegir las coordenadas.';};
+  $('applyFilters').onclick=render;$('resetFilters').onclick=()=>{$('fromDate').value='';$('toDate').value='';$('speciesFilter').value='';render();};
+  $('heatBtn').onclick=()=>{heatVisible=!heatVisible;$('heatBtn').classList.toggle('active',heatVisible);$('heatBtn').textContent=heatVisible?'◉ Densidad':'○ Densidad';if(heatLayer._map)heatLayer._reset();render();};
+  $('fitBtn').onclick=()=>{if(filtered.length){const b=L.latLngBounds(filtered.map(p=>[p.lat,p.lng]));map.fitBounds(b.pad(.2),{maxZoom:17});}};
+  function exportGPX(arr,filename){const escXml=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+    const body=arr.map(p=>`  <wpt lat="${p.lat}" lon="${p.lng}"><name>${escXml(p.name)}</name><desc>${escXml([p.species,p.date,p.notes].filter(Boolean).join(' | '))}</desc><type>${escXml(p.species)}</type></wpt>`).join('\n');
+    const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Oso Onddo!" xmlns="http://www.topografix.com/GPX/1/1">\n${body}\n</gpx>`;
+    const blob=new Blob([xml],{type:'application/gpx+xml;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);}
+  $('exportAllBtn').onclick=()=>exportGPX(points,'Oso Onddo!_todos.gpx');$('exportVisibleBtn').onclick=()=>exportGPX(filtered,'Oso Onddo!_filtrados.gpx');
+  $('gpxInput').onchange=async e=>{const files=[...e.target.files];let added=0;for(const file of files){try{const text=await file.text();const xml=new DOMParser().parseFromString(text,'application/xml');if(xml.querySelector('parsererror'))throw Error('GPX no válido');const wpts=[...xml.getElementsByTagNameNS('*','wpt')];wpts.forEach((el,i)=>{const lat=Number(el.getAttribute('lat')),lng=Number(el.getAttribute('lon'));if(!Number.isFinite(lat)||!Number.isFinite(lng))return;const get=t=>el.getElementsByTagNameNS('*',t)[0]?.textContent?.trim()||'';const name=get('name')||`Punto importado ${i+1}`,desc=get('desc'),type=get('type');let species=Object.keys(speciesColors).find(s=>s.toLowerCase()===type.toLowerCase())||'Sin identificar';let date=isoToday,notes=desc;if(desc){const match=desc.match(/\b\d{4}-\d{2}-\d{2}\b/);if(match)date=match[0];const parts=desc.split(' | ');if(parts.length>1&&Object.keys(speciesColors).includes(parts[0])){species=parts[0];notes=parts.slice(2).join(' | ');}}
+      points.push({id:'gpx-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),name,species,date,notes,lat,lng});added++;});}catch(err){alert(`No se pudo importar ${file.name}: el archivo no parece un GPX válido.`);}}
+    saveLocal();render();$('gpxInput').value='';alert(`Importación terminada: ${added} punto(s) añadidos.`);};
+  $('gpsBtn').onclick=()=>{if(!navigator.geolocation){alert('Este navegador no ofrece geolocalización.');return;}navigator.geolocation.getCurrentPosition(pos=>{const ll=[pos.coords.latitude,pos.coords.longitude];map.setView(ll,17);L.circleMarker(ll,{radius:8,color:'#fff',weight:3,fillColor:'#1688ff',fillOpacity:1}).addTo(map).bindPopup('Tu posición actual').openPopup();$('mapStatus').textContent='GPS activo · precisión aproximada '+Math.round(pos.coords.accuracy)+' m';},err=>alert('No se pudo obtener la ubicación. Comprueba los permisos y abre la app con conexión segura (HTTPS).'),{enableHighAccuracy:true,timeout:10000});};
+  render();
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>
