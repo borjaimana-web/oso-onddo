@@ -30,8 +30,8 @@ button.primary{background:var(--forest);color:#fff;border-color:var(--forest)}bu
 .notice{background:#fff8e9;border:1px solid #f1dfb5;color:#76521b;border-radius:10px;padding:10px;font-size:12px;line-height:1.45}
 footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
 .leaflet-popup-content-wrapper{border-radius:12px}.popup-title{font-weight:800;color:var(--forest)}.leaflet-control-attribution{font-size:9px!important}
-.menu-wrap{position:relative}.menu-trigger{font-size:22px;line-height:1;padding:7px 12px;min-width:42px}.quick-menu{position:absolute;right:0;top:calc(100% + 7px);z-index:1200;display:none;min-width:205px;padding:6px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px #173b2b30}.quick-menu.open{display:grid;gap:4px}.quick-menu button{text-align:left;border:0;background:white;color:var(--ink);padding:11px;border-radius:8px}.quick-menu button:hover{background:#edf5ef}
-.modal-backdrop{position:fixed;inset:0;z-index:2000;background:#10251dcc;display:none;align-items:center;justify-content:center;padding:16px}.modal-backdrop.open{display:flex}.modal-card{background:white;width:min(620px,100%);max-height:min(88vh,850px);overflow:auto;border-radius:18px;padding:17px;box-shadow:0 18px 60px #0005}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.modal-head h3{margin:0;font-size:17px}.modal-close{font-size:20px;padding:4px 10px}.modal-card #pointList{max-height:45vh}.map-actions.below-map{padding:0}.map-head.bottom-tools{position:absolute;right:10px;bottom:10px;z-index:500;padding:0;background:transparent;pointer-events:none}.map-head.bottom-tools .map-actions{pointer-events:auto}.map-head.bottom-tools .legend{display:none}.notice#osmStatus{position:absolute;left:10px;bottom:10px;z-index:500;max-width:min(440px,calc(100% - 90px));max-height:64px;overflow:auto;padding:7px 9px;font-size:10px;opacity:.94}.side{display:none}footer{display:none}
+.menu-wrap{position:relative}.menu-trigger{font-size:22px;line-height:1;padding:7px 12px;min-width:42px}.quick-menu{position:absolute;right:0;top:calc(100% + 7px);z-index:1200;display:none;min-width:205px;padding:6px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 28px #173b2b30}.quick-menu.open{display:grid;gap:4px}.quick-menu button{text-align:left;border:0;background:white;color:var(--ink);padding:11px;border-radius:8px}.quick-menu button:hover{background:#edf5ef}.quick-menu .osm-menu-row{display:flex;align-items:center;gap:2px}.quick-menu .osm-menu-row #openOsmBtn{flex:1}.quick-menu .info-btn{width:34px;min-width:34px;padding:7px 0;text-align:center;border:1px solid #dce5de;border-radius:50%;font-weight:800;color:#426454}
+.modal-backdrop{position:fixed;inset:0;z-index:2000;background:#10251dcc;display:none;align-items:center;justify-content:center;padding:16px}.modal-backdrop.open{display:flex}.modal-card{background:white;width:min(620px,100%);max-height:min(88vh,850px);overflow:auto;border-radius:18px;padding:17px;box-shadow:0 18px 60px #0005}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.modal-head h3{margin:0;font-size:17px}.modal-close{font-size:20px;padding:4px 10px}.modal-card #pointList{max-height:45vh}.map-actions.below-map{padding:0}.map-head.bottom-tools{position:absolute;right:10px;bottom:10px;z-index:500;padding:0;background:transparent;pointer-events:none}.map-head.bottom-tools .map-actions{pointer-events:auto;align-items:center;gap:7px}.map-head.bottom-tools .legend{display:none}.map-tools-btn{width:40px;height:40px;padding:0;display:grid;place-items:center;border-radius:50%;background:#fff;color:#174b38;box-shadow:0 2px 9px #0003;border:1px solid #d5e0d8}.map-tools-btn svg{width:22px;height:22px}.north-compass{width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #d5e0d8;box-shadow:0 2px 9px #0003;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#174b38;line-height:1}.north-compass svg{width:18px;height:21px}.leaflet-control-scale{margin-bottom:10px!important;margin-left:10px!important}.leaflet-control-scale-line{border:2px solid #29483b;border-top:0;background:#ffffffd9;color:#18342b;text-shadow:none;font-size:10px;font-weight:700;padding:1px 5px 2px}.notice#osmStatus{position:absolute;left:10px;bottom:48px;z-index:500;max-width:min(440px,calc(100% - 90px));max-height:64px;overflow:auto;padding:7px 9px;font-size:10px;opacity:.94}.side{display:none}footer{display:none}
 @media(max-width:850px){main{padding:0}.side{display:none}#map{height:auto;min-height:0}.map-head{padding:7px 9px}.map-head h2{font-size:14px}}
 @media(max-width:560px){header{padding:8px 10px}.brand{font-size:17px}.logo{width:34px;height:34px}.map-head{align-items:center}.map-actions button{padding:8px 9px;font-size:13px}.menu-trigger{min-width:38px;padding:6px 10px}.sub{font-size:11px}.modal-card{max-height:90dvh}}
 </style>
@@ -52,7 +52,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
           <div id="quickMenu" class="quick-menu" role="menu">
             <button type="button" id="openPointsBtn">📍 Mis puntos</button>
             <button type="button" id="openFiltersBtn">🔎 Filtrar puntos</button>
-            <button type="button" id="openOsmBtn">🗺️ Cargar mapa .osm</button>
+            <div class="osm-menu-row"><button type="button" id="openOsmBtn">🗺️ Cargar mapa .osm</button><button type="button" class="info-btn" id="osmInfoBtn" aria-label="Información sobre mapas locales" title="Información">i</button></div>
           </div>
         </div>
       </div>
@@ -60,9 +60,13 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
     <div id="map" aria-label="Mapa interactivo"></div>
     <input type="file" id="osmInput" accept=".osm,application/xml,text/xml" hidden>
     <div class="map-head bottom-tools">
-      <div class="map-actions"><button id="fitBtn">Ver todos</button></div>
+      <div class="map-actions">
+          <button id="fitBtn">Ver todos</button>
+          <button id="centerGpsBtn" class="map-tools-btn" title="Centrar mi posición actual" aria-label="Centrar mi posición actual"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg></button>
+          <div class="north-compass" title="Norte"><svg viewBox="0 0 24 26"><path d="M12 1 20 22 12 17 4 22Z" fill="#1688ff" stroke="#174b38" stroke-width="1.2"/><path d="M12 1v16" stroke="white" stroke-width="1.4"/></svg><span>N</span></div>
+        </div>
     </div>
-    <div class="notice" id="osmStatus" style="margin:0 14px 12px"><b>Mapas locales:</b> carga un archivo .osm desde el menú de opciones. El archivo se procesa en este dispositivo; no se sube a ningún servidor. El mapa base online requiere Internet.</div>
+    <div class="notice" id="osmStatus" style="display:none"></div>
   </section>
   <div class="modal-backdrop" id="addModal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
     <section class="modal-card">
@@ -92,6 +96,14 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
     </section>
   </div>
 </main>
+  <div class="modal-backdrop" id="osmInfoModal" role="dialog" aria-modal="true" aria-labelledby="osmInfoTitle">
+    <section class="modal-card">
+      <div class="modal-head"><h3 id="osmInfoTitle">ℹ️ Mapas locales</h3><button class="modal-close" data-close="osmInfoModal" aria-label="Cerrar">×</button></div>
+      <p>Selecciona un archivo <b>.osm</b> desde «Cargar mapa .osm». El archivo se procesa directamente en este dispositivo y no se sube a ningún servidor.</p>
+      <p>El mapa local se dibuja encima del mapa base y los puntos de setas se conservan. Para mostrar el mapa base online necesitas conexión a Internet.</p>
+      <p>Se admiten archivos .osm en formato XML; no se admiten .pbf ni .mbtiles.</p>
+    </section>
+  </div>
 <footer>Oso Onddo! · Prototipo interactivo · Mapa © OpenStreetMap contributors</footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
@@ -120,6 +132,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
   let filtered = points.slice(), markers = [], heatLayer, picking = false, pendingCoords = null, editId = null, heatVisible = true;
   const map = L.map('map',{zoomControl:true}).setView([43.302,-1.953],15);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+  L.control.scale({metric:true,imperial:false,position:'bottomleft',maxWidth:120}).addTo(map);
   let localOsmLayer = null;
   const osmStyles = tags => {
     if(tags.building) return {color:'#9b8575',weight:1,fillColor:'#c9b9a8',fillOpacity:.55};
@@ -132,7 +145,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
   };
   function loadOsmFile(file){
     if(!file) return;
-    $('osmStatus').textContent = `Leyendo ${file.name}…`;
+    $('osmStatus').style.display='block';$('osmStatus').textContent = `Leyendo ${file.name}…`;
     file.text().then(text=>{
       const xml = new DOMParser().parseFromString(text,'application/xml');
       if(xml.querySelector('parsererror') || !xml.documentElement || xml.documentElement.tagName.toLowerCase()!=='osm') throw new Error('El archivo no es XML OSM válido. Selecciona un archivo .osm, no .pbf ni .mbtiles.');
@@ -173,9 +186,9 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
       localOsmLayer=group.addTo(map);
       const bounds=group.getBounds();
       if(bounds.isValid())map.fitBounds(bounds.pad(.06),{maxZoom:17});
-      $('osmStatus').innerHTML=`<b>Mapa local cargado:</b> ${esc(file.name)} · ${ways} caminos/áreas y ${places} elementos puntuales. <button type="button" id="clearOsmBtn">Quitar mapa local</button><br>El mapa local se dibuja encima del mapa base. Los puntos de setas se conservan.`;
-      $('clearOsmBtn').onclick=()=>{if(localOsmLayer)map.removeLayer(localOsmLayer);localOsmLayer=null;$('osmStatus').textContent='Mapa local retirado. Puedes cargar otro archivo .osm.';};
-    }).catch(err=>{$('osmStatus').textContent='No se pudo cargar el mapa: '+err.message;});
+      $('osmStatus').style.display='block';$('osmStatus').innerHTML=`<b>Mapa local cargado:</b> ${esc(file.name)} · ${ways} caminos/áreas y ${places} elementos puntuales. <button type="button" id="clearOsmBtn">Quitar mapa local</button><br>El mapa local se dibuja encima del mapa base. Los puntos de setas se conservan.`;
+      $('clearOsmBtn').onclick=()=>{if(localOsmLayer)map.removeLayer(localOsmLayer);localOsmLayer=null;$('osmStatus').style.display='block';$('osmStatus').textContent='Mapa local retirado. Puedes cargar otro archivo .osm.';};
+    }).catch(err=>{$('osmStatus').style.display='block';$('osmStatus').textContent='No se pudo cargar el mapa: '+err.message;});
   }
   $('osmInput').addEventListener('change',e=>{loadOsmFile(e.target.files[0]);e.target.value='';});
 
@@ -235,6 +248,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
   $('openPointsBtn').onclick=()=>{closeQuickMenu();render();openModal('pointsModal');};
   $('openFiltersBtn').onclick=()=>{closeQuickMenu();openModal('filtersModal');};
   $('openOsmBtn').onclick=()=>{closeQuickMenu();$('osmInput').click();};
+  $('osmInfoBtn').onclick=()=>{closeQuickMenu();openModal('osmInfoModal');};
   document.addEventListener('click',e=>{if(!$('quickMenu').contains(e.target)&&e.target!==$('moreMenuBtn'))closeQuickMenu();});
 
   $('addBtn').onclick=()=>{
@@ -267,6 +281,13 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
   $('applyFilters').onclick=()=>{render();closeModal('filtersModal');};$('resetFilters').onclick=()=>{$('fromDate').value='';$('toDate').value='';$('speciesFilter').value='';render();};
   $('heatBtn').onclick=()=>{heatVisible=!heatVisible;$('heatBtn').classList.toggle('active',heatVisible);$('heatBtn').textContent=heatVisible?'◉ Densidad':'○ Densidad';if(heatLayer._map)heatLayer._reset();render();};
   $('fitBtn').onclick=()=>{if(filtered.length){const b=L.latLngBounds(filtered.map(p=>[p.lat,p.lng]));map.fitBounds(b.pad(.2),{maxZoom:17});}};
+  function centerOnGps(){
+    if(window.currentGpsMarker){map.setView(window.currentGpsMarker.getLatLng(),18);return;}
+    if(!navigator.geolocation){alert('Este navegador no ofrece geolocalización.');return;}
+    $('centerGpsBtn').disabled=true;
+    navigator.geolocation.getCurrentPosition(pos=>{const ll=[pos.coords.latitude,pos.coords.longitude];showGpsArrow(ll[0],ll[1],Number.isFinite(pos.coords.heading)?pos.coords.heading:0);startGpsWatch();map.setView(ll,18);$('centerGpsBtn').disabled=false;},()=>{$('centerGpsBtn').disabled=false;alert('No se pudo obtener la ubicación. Comprueba los permisos GPS y la conexión segura (HTTPS).');},{enableHighAccuracy:true,timeout:12000,maximumAge:5000});
+  }
+  $('centerGpsBtn').onclick=centerOnGps;
   function exportGPX(arr,filename){const escXml=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
     const body=arr.map(p=>`  <wpt lat="${p.lat}" lon="${p.lng}"><name>${escXml(p.name)}</name><desc>${escXml([p.species,p.date,p.notes].filter(Boolean).join(' | '))}</desc><type>${escXml(p.species)}</type></wpt>`).join('\n');
     const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Oso Onddo!" xmlns="http://www.topografix.com/GPX/1/1">\n${body}\n</gpx>`;
