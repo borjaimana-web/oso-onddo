@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#075b43">
+<meta name="description" content="Oso Onddo! Guarda tus setales, visualiza probabilidades y gestiona puntos GPX.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Oso Onddo!</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root{--forest:#075b43;--forest2:#0b7656;--cream:#f5f7f1;--ink:#18342b;--muted:#66786f;--line:#dce5de;--orange:#f08a24}
+*{box-sizing:border-box}html,body{height:100%;overflow:hidden}body{margin:0;display:flex;flex-direction:column;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#edf2ed}
+header{flex:0 0 auto;background:linear-gradient(115deg,#064b38,#0b7554);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 3px 12px #173b2b24;z-index:600}
+.brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;letter-spacing:.2px}.logo{width:38px;height:38px;border-radius:12px;background:#ffffff20;display:grid;place-items:center;font-size:23px}
+header small{display:block;font-size:11px;font-weight:500;opacity:.82}
+main{width:100%;max-width:none;flex:1;min-height:0;margin:0;padding:0;display:flex;gap:0}
+.map-card,.panel{background:white;border:0;border-radius:0;overflow:hidden;box-shadow:none}.map-card{position:relative;display:flex;flex-direction:column;flex:1;min-height:0}
+.map-head{flex:0 0 auto;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.map-head h2{font-size:16px;margin:0}.sub{font-size:12px;color:var(--muted)}
+#map{height:auto;min-height:0;flex:1;background:#dce8d7;width:100%}
+.map-actions{display:flex;gap:6px;flex-wrap:wrap}
+button,.file-button{font:inherit;border:1px solid #d4e0d8;background:white;color:var(--forest);border-radius:10px;padding:9px 11px;font-weight:700;cursor:pointer}
+button.primary{background:var(--forest);color:#fff;border-color:var(--forest)}button.active{background:#d9f1e5;border-color:#8bc8ac}button:hover,.file-button:hover{filter:brightness(.97)}
+.side{display:flex;flex-direction:column;gap:14px}.panel{padding:15px}.panel h3{font-size:15px;margin:0 0 12px}.field{margin:11px 0}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;border:1px solid #d7e1d9;border-radius:9px;padding:9px;font:inherit;background:#fff;color:var(--ink)}.field textarea{resize:vertical;min-height:62px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eef2ee;font-size:13px}.stat:last-child{border:0}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.legend{font-size:12px;color:var(--muted);line-height:1.5}.gradient{height:10px;border-radius:99px;background:linear-gradient(90deg,#66bb6a00,#66bb6a55,#f4df4977,#f08a2488,#df342d99);margin:8px 0}
+#pointList{display:flex;flex-direction:column;gap:7px;max-height:230px;overflow:auto}.danger{background:#fff0ed;border-color:#e5b5aa;color:#a52f20}.point-item{display:flex;align-items:center;gap:8px;border:1px solid #edf1ed;border-radius:10px;padding:8px;font-size:12px}.point-item .meta{flex:1;min-width:0}.point-item strong{display:block;font-size:13px}.point-item button{padding:5px 8px;font-size:11px}
+.notice{background:#fff8e9;border:1px solid #f1dfb5;color:#76521b;border-radius:10px;padding:10px;font-size:12px;line-height:1.45}
+footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
+.leaflet-popup-content-wrapper{border-radius:12px}.popup-title{font-weight:800;color:var(--forest)}.leaflet-control-attribution{font-size:9px!important}
+.menu-wrap{position:relative}.menu-trigger{font-size:22px;line-height:1;padding:7px;min-width:40px;width:40px;height:40px;border-radius:50%}.quick-menu{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;padding:16px;background:#10251d99;overflow:auto}.quick-menu.open{display:flex}.quick-menu-card{width:min(420px,100%);max-height:85dvh;overflow:auto;padding:17px;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 60px #0005;display:grid;gap:9px}.quick-menu button{font-size:14px;padding:11px;border:1px solid var(--line);border-radius:10px}.quick-menu .menu-full-head{display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:800;padding:4px 2px 8px}.quick-menu .menu-full-head button{font-size:24px;padding:7px 14px}.quick-menu button{text-align:left;border:0;background:white;color:var(--ink);padding:11px;border-radius:8px}.quick-menu button:hover{background:#edf5ef}.quick-menu .osm-menu-row{display:flex;align-items:center;gap:2px}.quick-menu .osm-menu-row #openOsmBtn{flex:1}.quick-menu .info-btn{width:34px;min-width:34px;padding:7px 0;text-align:center;border:1px solid #dce5de;border-radius:50%;font-weight:800;color:#426454}
+.modal-backdrop{position:fixed;inset:0;z-index:2000;background:#10251dcc;display:none;align-items:center;justify-content:center;padding:16px}.modal-backdrop.open{display:flex}.modal-card{background:white;width:min(620px,100%);max-height:min(88vh,850px);overflow:auto;border-radius:18px;padding:17px;box-shadow:0 18px 60px #0005}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.modal-head h3{margin:0;font-size:17px}.modal-close{font-size:20px;padding:4px 10px}.modal-card #pointList{max-height:45vh}.map-actions.below-map{padding:0}.map-head.bottom-tools{position:absolute;left:10px;right:10px;bottom:38px;z-index:650;padding:0;background:transparent;pointer-events:none;justify-content:space-between}.map-head.bottom-tools .map-actions{pointer-events:auto;align-items:center;gap:7px}.map-head.bottom-tools .bottom-left-actions{margin-left:auto;margin-right:0;justify-content:flex-end}.map-head.bottom-tools .bottom-left-actions #addBtn{border-radius:22px;box-shadow:0 2px 9px #0003}.map-head.bottom-tools .north-compass{position:absolute;right:0;bottom:48px}.leaflet-bottom.leaflet-left{left:50%!important;bottom:12px!important;transform:translateX(-50%)}.leaflet-control-scale{position:relative!important;left:auto!important;bottom:auto!important;transform:none!important;margin:0!important;z-index:650!important}.leaflet-control-attribution{z-index:650!important}.map-head.bottom-tools .legend{display:none}.map-tools-btn{width:40px;height:40px;padding:0;display:grid;place-items:center;border-radius:50%;background:#fff;color:#174b38;box-shadow:0 2px 9px #0003;border:1px solid #d5e0d8}.map-tools-btn svg{width:22px;height:22px}.north-compass{width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #d5e0d8;box-shadow:0 2px 9px #0003;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#174b38;line-height:1}.north-compass svg{width:18px;height:21px}.leaflet-control-scale{margin:0!important}.leaflet-control-scale-line{border:2px solid #29483b;border-top:0;background:#ffffffd9;color:#18342b;text-shadow:none;font-size:10px;font-weight:700;padding:1px 5px 2px}.notice#osmStatus{position:absolute;left:10px;bottom:78px;z-index:500;max-width:min(440px,calc(100% - 90px));max-height:64px;overflow:auto;padding:7px 9px;font-size:10px;opacity:.94}.side{display:none}footer{display:none}
+#screenDimmer{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1800;pointer-events:none;display:none}#screenDimmer.on{display:block}.species-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.species-checks label{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e2e9e3;border-radius:9px;font-size:13px}.species-checks input{width:auto}.osm-row{display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #edf1ed}.osm-row label{flex:1;font-size:13px}.osm-row button{padding:5px 9px}.map-actions #mapToggleBtn{font-size:13px}
+@media(max-width:850px){main{padding:0}.side{display:none}#map{height:auto;min-height:0}.map-head{padding:7px 9px}.map-head h2{font-size:14px}}
+@media(max-width:560px){.quick-menu-card{width:min(420px,100%)}.map-head.bottom-tools{bottom:34px}.map-head.bottom-tools .north-compass{bottom:48px}header{padding:8px 10px}.brand{font-size:17px}.logo{width:34px;height:34px}.map-head{align-items:center}.map-actions button{padding:8px 9px;font-size:13px}.menu-trigger{min-width:38px;padding:6px 10px}.sub{font-size:11px}.modal-card{max-height:90dvh}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo" aria-label="Boletus"><img src="icons/icon-192.png" alt="" width="38" height="38" style="border-radius:50%;display:block"></div><div>Oso Onddo!</div></div>
+  <div class="row"><button id="gpsBtn" title="Usar mi ubicación">◎ Mi GPS</button></div>
+</header>
+<main>
+  <section class="map-card">
+    <div class="map-head">
+      <div><h2>Mapa de setales</h2><div class="sub" id="mapStatus">Puntos de demostración · activa el sombreado</div></div>
+      <div class="map-actions">
+        <button id="heatBtn" class="active">◉ Probabilidad</button>
+        <button id="pointsToggleBtn" class="active">🍄 Puntos</button>
+        <button id="mapToggleBtn" class="active">🗺️ Mapa</button>
+        <div class="menu-wrap"><button id="moreMenuBtn" class="menu-trigger" aria-label="Más opciones" aria-expanded="false">⋮</button>
+          <div id="quickMenu" class="quick-menu" role="dialog" aria-modal="true" aria-label="Menú principal">
+            <div class="quick-menu-card">
+              <div class="menu-full-head"><span>Oso Onddo! · Menú</span><button type="button" id="closeFullMenu" aria-label="Cerrar menú">×</button></div>
+              <button type="button" id="openPointsBtn">🍄 Mis puntos</button>
+              <button type="button" id="openFiltersBtn">🔎 Filtrar puntos</button>
+              <button type="button" id="openCartographyBtn">🗺️ Cartografía</button>
+              <button type="button" id="openProbabilityBtn">⚙️ Configurar Probabilidad</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="map" aria-label="Mapa interactivo"></div>
+    <input type="file" id="osmInput" accept=".osm,application/xml,text/xml" hidden>
+    <div class="map-head bottom-tools">
+      <div class="map-actions bottom-left-actions">
+          <button id="addBtn" class="primary">＋ Añadir punto</button>
+          <button id="fitBtn">Ver todos</button>
+          <button id="centerGpsBtn" class="map-tools-btn" title="Centrar mi posición actual" aria-label="Centrar mi posición actual"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg></button>
+          <div class="north-compass" title="Norte"><svg viewBox="0 0 24 26"><path d="M12 1 20 22 12 17 4 22Z" fill="#1688ff" stroke="#174b38" stroke-width="1.2"/><path d="M12 1v16" stroke="white" stroke-width="1.4"/></svg><span>N</span></div>
+        </div>
+    </div>
+    <div class="notice" id="osmStatus" style="display:none"></div>
+  </section>
+  <div class="modal-backdrop" id="addModal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+    <section class="modal-card">
+      <div class="modal-head"><h3 id="addModalTitle">📍 Añadir / editar punto</h3><button class="modal-close" data-close="addModal" aria-label="Cerrar">×</button></div>
+      <div class="field"><label>Nombre automático</label><div class="sub" id="autoNamePreview">Se asignará con la fecha y hora al guardar.</div></div>
+      <div class="two"><div class="field"><label for="pointSpecies">Especie</label><select id="pointSpecies"><option>Hongo</option><option>Níscalo</option><option>Ziza</option><option>Gibela</option><option>Sin identificar</option><option>Puntos de Interés</option></select></div><div class="field"><label for="pointDate">Fecha</label><input id="pointDate" type="date"></div></div>
+      <div class="field"><label for="pointUnits">Unidades encontradas</label><input id="pointUnits" type="number" min="1" step="1" value="1"></div>
+      <div class="field"><label for="pointNotes">Notas</label><textarea id="pointNotes" placeholder="Hábitat, cantidad, observaciones…"></textarea></div>
+      <div class="sub" id="coordsHint">Pulsa “Añadir punto” para capturar automáticamente tu ubicación GPS.</div>
+      <div class="row" style="margin-top:10px"><button class="primary" id="savePoint">Guardar punto</button><button id="deleteEditingPoint" class="danger" style="display:none">Eliminar punto</button><button id="cancelEdit">Cancelar</button></div>
+    </section>
+  </div>
+  <div class="modal-backdrop" id="filtersModal" role="dialog" aria-modal="true" aria-labelledby="filtersModalTitle">
+    <section class="modal-card">
+      <div class="modal-head"><h3 id="filtersModalTitle">🔎 Filtrar puntos</h3><button class="modal-close" data-close="filtersModal" aria-label="Cerrar">×</button></div>
+      <div class="field"><label for="fromPreset">Desde</label><select id="fromPreset"><option value="">Cualquier fecha</option><option value="year">Hace un año</option><option value="3months">Hace 3 meses</option><option value="month">Hace un mes</option><option value="week">Hace una semana</option><option value="yesterday">Ayer</option><option value="custom">Elegir fecha</option></select><input type="date" id="fromDate" style="display:none;margin-top:7px"></div>
+      <div class="field"><label for="toPreset">Hasta</label><select id="toPreset"><option value="">Cualquier fecha</option><option value="year">Hace un año</option><option value="3months">Hace 3 meses</option><option value="month">Hace un mes</option><option value="week">Hace una semana</option><option value="today">Hoy</option><option value="custom">Elegir fecha</option></select><input type="date" id="toDate" style="display:none;margin-top:7px"></div>
+      <div class="field"><label>Especies (puedes seleccionar varias)</label><div id="speciesFilterChecks" class="species-checks"></div></div>
+      <div class="row"><button class="primary" id="applyFilters">Aplicar filtros</button><button id="resetFilters">Restablecer</button><button id="exportVisibleBtn">Exportar filtrados GPX</button></div>
+      <div class="stat"><span>Puntos guardados</span><b id="totalCount">0</b></div><div class="stat"><span>Puntos visibles</span><b id="visibleCount">0</b></div>
+    </section>
+  </div>
+  <div class="modal-backdrop" id="pointsModal" role="dialog" aria-modal="true" aria-labelledby="pointsModalTitle">
+    <section class="modal-card">
+      <div class="modal-head"><h3 id="pointsModalTitle">🗂️ Mis puntos</h3><button class="modal-close" data-close="pointsModal" aria-label="Cerrar">×</button></div>
+      <div class="row" style="margin-bottom:9px"><label class="file-button" for="gpxInput">Importar GPX</label><input type="file" id="gpxInput" accept=".gpx,application/gpx+xml,application/xml,text/xml" multiple hidden><button id="exportAllBtn">Exportar todos GPX</button></div>
+      <div id="pointList"></div><div class="sub" style="margin-top:9px">Los datos se guardan en este navegador. Exporta GPX para hacer una copia.</div>
+    </section>
+  </div>
+</main>
+  <div class="modal-backdrop" id="cartographyModal" role="dialog" aria-modal="true"><section class="modal-card"><div class="modal-head"><h3>🗺️ Cartografía</h3><button class="modal-close" data-close="cartographyModal">×</button></div><div class="row"><button class="primary" id="openOsmBtn">＋ Cargar mapa OSM</button><button class="info-btn" id="osmInfoBtn" title="Información">i</button></div><div id="osmList" style="margin-top:12px"></div><div class="sub">Los mapas se guardan en este dispositivo.</div></section></div>
+  <div class="modal-backdrop" id="probabilityModal" role="dialog" aria-modal="true"><section class="modal-card"><div class="modal-head"><h3>⚙️ Configurar Probabilidad</h3><button class="modal-close" data-close="probabilityModal">×</button></div><p><b>Calcular con estos grupos:</b></p><div id="probSpecies"></div><div class="sub">La probabilidad se calcula según las especies seleccionadas. Las zonas superpuestas aumentan la opacidad.</div><div class="gradient" style="background:linear-gradient(90deg,#f1d84a 0%,#82bd55 35%,#258f54 80%,#00c9e8 100%);height:14px"></div><div class="row"><button class="primary" id="saveProbability">Guardar configuración</button></div></section></div>
+  <div class="modal-backdrop" id="osmInfoModal" role="dialog" aria-modal="true" aria-labelledby="osmInfoTitle">
+    <section class="modal-card">
+      <div class="modal-head"><h3 id="osmInfoTitle">ℹ️ Mapas locales</h3><button class="modal-close" data-close="osmInfoModal" aria-label="Cerrar">×</button></div>
+      <p>Selecciona un archivo <b>.osm</b> desde «Cartografía». El archivo se procesa directamente en este dispositivo y no se sube a ningún servidor.</p>
+      <p>Los mapas locales se superponen a la cartografía base; el más reciente tiene prioridad visual. Puedes activarlos, desactivarlos o eliminarlos desde Cartografía. Para mostrar el mapa base online necesitas conexión a Internet.</p>
+      <p>Se admiten archivos .osm en formato XML; no se admiten .pbf ni .mbtiles.</p>
+    </section>
+  </div>
+<footer>Oso Onddo! · Prototipo interactivo · Mapa © OpenStreetMap contributors</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const today = new Date(); const isoToday = today.toISOString().slice(0,10);
+  $('pointDate').value = isoToday;
+  const speciesColors = {'Hongo':'#75513b','Níscalo':'#ee7628','Ziza':'#e7b522','Gibela':'#8064d8','Sin identificar':'#2c9b68','Puntos de Interés':'#d4a017'};
+  let points = [];
+  try { points = JSON.parse(localStorage.getItem('oso_onddo_points') || '[]') || []; } catch(e) { points=[]; }
+  // Elimina los puntos de demostración de versiones anteriores.
+  points = points.filter(p=>!String(p.id||'').startsWith('demo-'));
+  // Migra los nombres antiguos de especie guardados en el dispositivo.
+  points = points.map(p=>({...p, species: ({'Boletus':'Hongo','Rebozuelo':'Ziza','Senderuela':'Gibela'}[p.species] || p.species)}));
+  saveLocal();
+  let filtered = points.slice(), markers = [], heatLayer, picking = false, pendingCoords = null, editId = null, heatVisible = true, pointsVisible=true, baseMapVisible=true;
+  let probabilitySpecies=Object.keys(speciesColors), localMaps=[];
+  try{localMaps=JSON.parse(localStorage.getItem('oso_onddo_osm_maps')||'[]')}catch(e){localMaps=[];}
+  const MAX_BASE_ZOOM = 19;
+  const map = L.map('map',{zoomControl:true,maxZoom:22}).setView([43.302,-1.953],MAX_BASE_ZOOM);
+  const baseTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:MAX_BASE_ZOOM,maxZoom:22,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'});
+  baseTiles.addTo(map);
+  function updateBaseVisibility(){const show=baseMapVisible&&map.getZoom()<=MAX_BASE_ZOOM;if(show&&!map.hasLayer(baseTiles))baseTiles.addTo(map);else if(!show&&map.hasLayer(baseTiles))map.removeLayer(baseTiles);localMaps.forEach(m=>{const layer=osmLayers[m.id];if(layer){const visible=m.enabled&&map.getZoom()<=Number(m.maxZoom||MAX_BASE_ZOOM);if(visible&&!map.hasLayer(layer))layer.addTo(map);if(!visible&&map.hasLayer(layer))map.removeLayer(layer);}});}
+  map.on('zoomend',updateBaseVisibility);
+  L.control.scale({metric:true,imperial:false,position:'bottomleft',maxWidth:200}).addTo(map);
+  let osmLayers = {}; let localOsmLayer = null;
+  const osmStyles = tags => {
+    if(tags.building) return {color:'#9b8575',weight:1,fillColor:'#c9b9a8',fillOpacity:.55};
+    if(tags.natural==='water'||tags.waterway==='riverbank') return {color:'#5a9dc5',weight:1.5,fillColor:'#8fc8e8',fillOpacity:.65};
+    if(tags.leisure==='park'||tags.landuse==='forest'||tags.natural==='wood') return {color:'#57915a',weight:1,fillColor:'#9ac58a',fillOpacity:.45};
+    if(tags.highway==='motorway'||tags.highway==='trunk'||tags.highway==='primary') return {color:'#d58b56',weight:3};
+    if(tags.highway) return {color: tags.highway==='path'||tags.highway==='footway'||tags.highway==='track' ? '#987b52' : '#b8a18c',weight: tags.highway==='path'||tags.highway==='footway'?2:2.5,dashArray:tags.highway==='path'||tags.highway==='footway'?'4 4':null};
+    if(tags.waterway) return {color:'#4f9ac6',weight:2};
+    return {color:'#8b9d88',weight:1,fillColor:'#b7c8aa',fillOpacity:.2};
+  };
+  function loadOsmFile(file, existing=null){
+    if(!file) return;
+    $('osmStatus').style.display='block';$('osmStatus').textContent = `Leyendo ${file.name}…`;
+    file.text().then(text=>{
+      const xml = new DOMParser().parseFromString(text,'application/xml');
+      if(xml.querySelector('parsererror') || !xml.documentElement || xml.documentElement.tagName.toLowerCase()!=='osm') throw new Error('El archivo no es XML OSM válido. Selecciona un archivo .osm, no .pbf ni .mbtiles.');
+      const nodes = new Map();
+      xml.querySelectorAll('node').forEach(n=>{
+        const lat=Number(n.getAttribute('lat')), lon=Number(n.getAttribute('lon'));
+        if(Number.isFinite(lat)&&Number.isFinite(lon)) nodes.set(n.getAttribute('id'),{lat,lng:lon,tags:readTags(n)});
+      });
+      function readTags(el){const out={};el.querySelectorAll(':scope > tag').forEach(t=>out[t.getAttribute('k')]=t.getAttribute('v'));return out;}
+      const group = L.featureGroup();
+      let drawn=0, ways=0, places=0;
+      xml.querySelectorAll('way').forEach(w=>{
+        const coords=[];
+        w.querySelectorAll(':scope > nd').forEach(nd=>{const n=nodes.get(nd.getAttribute('ref'));if(n)coords.push([n.lat,n.lng]);});
+        if(coords.length<2)return;
+        const tags=readTags(w);
+        if(!Object.keys(tags).length)return;
+        const closed=coords.length>3&&coords[0][0]===coords[coords.length-1][0]&&coords[0][1]===coords[coords.length-1][1];
+        const polygon=closed&&!!(tags.building||tags.landuse||tags.leisure||tags.natural||tags.amenity||tags.waterway==='riverbank');
+        const style=osmStyles(tags);
+        const layer=polygon?L.polygon(coords,style):L.polyline(coords,style);
+        const label=tags.name||tags.highway||tags.building||tags.natural||tags.landuse||tags.waterway||'Elemento OSM';
+        layer.bindPopup(`<b>${esc(label)}</b><br><span>${esc(Object.entries(tags).slice(0,8).map(([k,v])=>k+'='+v).join(' · '))}</span>`);
+        group.addLayer(layer);drawn++;ways++;
+      });
+      xml.querySelectorAll('node').forEach(n=>{
+        const tags=readTags(n);
+        if(!Object.keys(tags).length)return;
+        const lat=Number(n.getAttribute('lat')),lng=Number(n.getAttribute('lon'));
+        if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
+        if(!(tags.name||tags.amenity||tags.shop||tags.tourism||tags.natural||tags.place||tags.highway==='bus_stop'))return;
+        const marker=L.circleMarker([lat,lng],{radius:3,color:'#fff',weight:1,fillColor:'#6d7868',fillOpacity:.9});
+        marker.bindPopup(`<b>${esc(tags.name||tags.amenity||tags.natural||tags.place||'Elemento OSM')}</b><br><span>${esc(Object.entries(tags).slice(0,8).map(([k,v])=>k+'='+v).join(' · '))}</span>`);
+        group.addLayer(marker);drawn++;places++;
+      });
+      if(!drawn) throw new Error('El archivo se ha leído, pero no contiene caminos ni elementos etiquetados que se puedan dibujar.');
+      const id=existing?.id||('osm-'+Date.now());const bounds=group.getBounds();const maxZoom=Number(existing?.maxZoom||19);if(existing){localMaps=localMaps.filter(m=>m.id!==id);localMaps.push({...existing,xml:text});}else localMaps.push({id,name:file.name,xml:text,enabled:true,maxZoom,added:Date.now()});osmLayers[id]=group;localMaps.forEach(m=>{if(m.id!==id&&osmLayers[m.id]&&map.hasLayer(osmLayers[m.id]))map.removeLayer(osmLayers[m.id]);});if(map.getZoom()<=maxZoom)group.addTo(map);if(bounds.isValid())map.fitBounds(bounds.pad(.06),{maxZoom:19});localStorage.setItem('oso_onddo_osm_maps',JSON.stringify(localMaps));renderOsmList();updateBaseVisibility();$('osmStatus').style.display='block';$('osmStatus').textContent=`Cartografía cargada: ${file.name} · ${ways} caminos/áreas y ${places} elementos.`;
+    }).catch(err=>{$('osmStatus').style.display='block';$('osmStatus').textContent='No se pudo cargar el mapa: '+err.message;});
+  }
+  $('osmInput').addEventListener('change',e=>{loadOsmFile(e.target.files[0]);e.target.value='';});
+  // Reconstruir en el mapa los OSM locales guardados en este dispositivo.
+  localMaps.forEach(m=>{if(m.xml)loadOsmFile(new File([m.xml],m.name,{type:'application/xml'}),m);});
+  function renderOsmList(){const el=$('osmList');if(!el)return;el.innerHTML=localMaps.map(m=>`<div class="osm-row"><input type="checkbox" data-osm-enable="${m.id}" ${m.enabled?'checked':''}><label>${esc(m.name)}</label><button data-osm-delete="${m.id}" class="danger">🗑</button></div>`).join('')||'<div class="sub">Todavía no has cargado mapas.</div>';el.querySelectorAll('[data-osm-enable]').forEach(c=>c.onchange=()=>{const m=localMaps.find(x=>x.id===c.dataset.osmEnable);if(m)m.enabled=c.checked;localStorage.setItem('oso_onddo_osm_maps',JSON.stringify(localMaps));updateBaseVisibility();});el.querySelectorAll('[data-osm-delete]').forEach(b=>b.onclick=()=>{const id=b.dataset.osmDelete;if(!confirm('¿Eliminar este mapa local?'))return;if(osmLayers[id]&&map.hasLayer(osmLayers[id]))map.removeLayer(osmLayers[id]);delete osmLayers[id];localMaps=localMaps.filter(m=>m.id!==id);localStorage.setItem('oso_onddo_osm_maps',JSON.stringify(localMaps));renderOsmList();});}
+
+  // Canvas heat layer: each location creates a radial halo whose ground radius is 10 metres.
+  const Heat = L.Layer.extend({
+    onAdd:function(map){this._map=map;this._canvas=L.DomUtil.create('canvas','leaflet-heat-canvas');this._canvas.style.position='absolute';this._canvas.style.pointerEvents='none';this._canvas.style.zIndex=350;map.getPanes().overlayPane.appendChild(this._canvas);map.on('move zoom resize',this._reset,this);this._reset();},
+    onRemove:function(map){map.off('move zoom resize',this._reset,this);this._canvas.remove();},
+    _reset:function(){if(!this._map||!this._canvas)return;const size=this._map.getSize();const topLeft=this._map.containerPointToLayerPoint([0,0]);L.DomUtil.setPosition(this._canvas,topLeft);this._canvas.width=size.x;this._canvas.height=size.y;this._draw();},
+    _draw:function(){
+      const ctx=this._canvas.getContext('2d');const w=this._canvas.width,h=this._canvas.height;
+      ctx.clearRect(0,0,w,h);if(!heatVisible||!w||!h)return;
+      // Acumula la opacidad de todos los círculos por píxel; la suma se limita al 95%.
+      const accum=new Float32Array(w*h);
+      filtered.filter(p=>probabilitySpecies.includes(p.species)).forEach(p=>{
+        const c=this._map.latLngToContainerPoint([p.lat,p.lng]);
+        const units=Math.max(1,Number(p.units)||1);
+        const age=Math.max(0,(Date.now()-new Date((p.date||isoToday)+'T00:00:00').getTime())/(365.25*86400000));
+        const decay=Math.pow(.9,Math.floor(age));
+        const metres=15*(1+.05*(units-1))*decay;
+        const edge=this._map.latLngToContainerPoint([p.lat,p.lng+metres/(111320*Math.cos(p.lat*Math.PI/180))]);
+        const r=Math.max(1,Math.abs(edge.x-c.x));
+        const minX=Math.max(0,Math.floor(c.x-r)),maxX=Math.min(w-1,Math.ceil(c.x+r));
+        const minY=Math.max(0,Math.floor(c.y-r)),maxY=Math.min(h-1,Math.ceil(c.y+r));
+        for(let y=minY;y<=maxY;y++)for(let x=minX;x<=maxX;x++){
+          const dx=(x+.5-c.x)/r,dy=(y+.5-c.y)/r,d=Math.sqrt(dx*dx+dy*dy);
+          if(d>1)continue;
+          const radial=Math.max(0,1-d);
+          const a=(.02+.78*radial)*decay;
+          const idx=y*w+x;accum[idx]=Math.min(.95,accum[idx]+a);
+        }
+      });
+      const image=ctx.createImageData(w,h),data=image.data;
+      const stops=[[0,[241,216,74]],[.30,[130,189,85]],[.85,[37,143,84]],[.95,[0,201,232]]];
+      function colorAt(a){let i=0;while(i<stops.length-2&&a>stops[i+1][0])i++;const [a0,c0]=stops[i],[a1,c1]=stops[i+1];const t=Math.max(0,Math.min(1,(a-a0)/(a1-a0||1)));return [Math.round(c0[0]+(c1[0]-c0[0])*t),Math.round(c0[1]+(c1[1]-c0[1])*t),Math.round(c0[2]+(c1[2]-c0[2])*t)];}
+      for(let i=0;i<accum.length;i++){const a=accum[i];if(a<=0)continue;const c=colorAt(a),j=i*4;data[j]=c[0];data[j+1]=c[1];data[j+2]=c[2];data[j+3]=Math.round(a*255);}
+      ctx.putImageData(image,0,0);
+    }
+  });
+  heatLayer = new Heat(); heatLayer.addTo(map);
+
+  function saveLocal(){try{localStorage.setItem('oso_onddo_points',JSON.stringify(points));}catch(e){}}
+  function selectedFilterSpecies(){return [...document.querySelectorAll('[data-filter-species]:checked')].map(x=>x.dataset.filterSpecies);}
+  function renderSpeciesFilters(){const box=$('speciesFilterChecks');if(!box)return;const selected=selectedFilterSpecies();box.innerHTML=Object.keys(speciesColors).map(sp=>`<label><input type="checkbox" data-filter-species="${esc(sp)}" ${!selected.length||selected.includes(sp)?'checked':''}> ${esc(sp)}</label>`).join('');}
+  function dateIso(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
+  function presetDate(v){if(!v)return '';if(v==='custom')return null;const d=new Date();d.setHours(0,0,0,0);if(v==='year')d.setFullYear(d.getFullYear()-1);if(v==='3months')d.setMonth(d.getMonth()-3);if(v==='month')d.setMonth(d.getMonth()-1);if(v==='week')d.setDate(d.getDate()-7);if(v==='yesterday')d.setDate(d.getDate()-1);return dateIso(d);}
+  function filterDate(which){const preset=$(`${which}Preset`).value;return preset==='custom'?$(`${which}Date`).value:presetDate(preset);}
+  function filteredPoints(){const from=filterDate('from'),to=filterDate('to'),selected=selectedFilterSpecies();return points.filter(p=>(!from||p.date>=from)&&(!to||p.date<=to)&&(!selected.length||selected.includes(p.species)));}
+  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function render(){
+    filtered=filteredPoints();markers.forEach(m=>map.removeLayer(m));markers=[];
+    if(pointsVisible)filtered.forEach(p=>{const color=speciesColors[p.species]||'#2c9b68';const shapes={
+        'Hongo':'<path d="M5 17 C5 8 11 3 20 3 C29 3 35 8 35 17 Z"/><path d="M17 17 L15 33 Q20 36 25 33 L23 17 Z"/>',
+        'Níscalo':'<path d="M5 14 Q8 5 20 5 Q32 5 35 14 L31 18 Q20 12 9 18 Z"/><path d="M16 17 L13 32 Q20 35 27 32 L24 17 Z"/>',
+        'Ziza':'<path d="M4 19 Q9 8 20 8 Q31 8 36 19 Q29 17 25 21 Q20 17 15 21 Q10 17 4 19 Z"/><path d="M17 20 L15 33 Q20 35 25 33 L23 20 Z"/>',
+        'Gibela':'<path d="M5 17 Q8 6 20 6 Q32 6 35 17 Z"/><path d="M17 17 L15 33 Q20 35 25 33 L23 17 Z"/>'};
+      const svg=p.species==='Puntos de Interés'?'<text x="20" y="31" text-anchor="middle" font-size="34" fill="#d4a017" stroke="#fff" stroke-width="1.5">★</text>':p.species==='Sin identificar'?'<circle cx="20" cy="20" r="7" fill="'+color+'" stroke="white" stroke-width="3"/>':(shapes[p.species]||shapes['Gibela']).replaceAll('<path','<path fill="'+color+'" stroke="white" stroke-width="1.8" stroke-linejoin="round"');
+      const marker=L.marker([p.lat,p.lng],{pane:'markerPane',icon:L.divIcon({className:'species-marker',html:'<svg viewBox="0 0 40 40" width="32" height="32" style="filter:drop-shadow(0 1px 2px #3338)">'+svg+'</svg>',iconSize:[32,32],iconAnchor:[16,30]})}).addTo(map);
+      marker.bindPopup(`<div class="popup-title">${esc(p.name)}</div><div>${esc(p.species)} · ${esc(p.date)} · ${Number(p.units)||1} ud.</div><div>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</div><p>${esc(p.notes||'Sin notas')}</p><button onclick="window.editPoint('${p.id}')">Editar punto</button>`);
+      markers.push(marker);
+    });
+    if(heatLayer._map)heatLayer._reset();
+    $('totalCount').textContent=points.length;$('visibleCount').textContent=filtered.length;
+    $('mapStatus').textContent=`${filtered.length} puntos visibles · ${heatVisible?'sombreado activado':'sombreado desactivado'}`;
+    $('pointList').innerHTML=filtered.length?filtered.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(p=>`<div class="point-item"><span class="dot" style="background:${speciesColors[p.species]||'#2c9b68'}"></span><div class="meta"><strong>${esc(p.name)}</strong><span>${esc(p.species)} · ${esc(p.date)}</span><div class="sub">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</div></div><button onclick="window.zoomPoint('${p.id}')">Ver</button><button onclick="window.editPoint('${p.id}')">Editar</button><button class="danger" onclick="window.deletePoint('${p.id}')">Eliminar</button></div>`).join(''):'<div class="sub">No hay puntos con estos filtros.</div>';
+  }
+  window.deletePoint=id=>{const p=points.find(x=>x.id===id);if(!p)return;if(!confirm(`¿Eliminar el punto «${p.name}»? Esta acción no se puede deshacer.`))return;points=points.filter(x=>x.id!==id);saveLocal();render();};
+  window.zoomPoint=id=>{const p=points.find(x=>x.id===id);if(p){map.setView([p.lat,p.lng],19);const m=markers.find(x=>x.getLatLng().lat===p.lat&&x.getLatLng().lng===p.lng);if(m)m.openPopup();}};
+  window.editPoint=id=>{const p=points.find(x=>x.id===id);if(!p)return;closeModal('pointsModal');openModal('addModal');$('deleteEditingPoint').style.display='inline-block';editId=id;pendingCoords={lat:p.lat,lng:p.lng};$('autoNamePreview').textContent=p.name+' (nombre conservado)';$('pointSpecies').value=p.species;$('pointDate').value=p.date;$('pointUnits').value=p.units||1;$('pointNotes').value=p.notes||'';$('coordsHint').textContent=`Coordenadas: ${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;map.setView([p.lat,p.lng],19);};
+  let gpsWatchId=null, lastGpsPosition=null;
+  function bearingBetween(a,b){const r=Math.PI/180, p1=a.lat*r,p2=b.lat*r,dl=(b.lng-a.lng)*r;const y=Math.sin(dl)*Math.cos(p2),x=Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl);return (Math.atan2(y,x)*180/Math.PI+360)%360;}
+  function showGpsArrow(lat,lng,heading){
+    const angle=Number.isFinite(heading)?heading:0;
+    const icon=L.divIcon({className:'gps-arrow-icon',html:`<div style="width:34px;height:34px;transform:rotate(${angle}deg);filter:drop-shadow(0 1px 2px #3338)"><svg viewBox="0 0 40 40" width="34" height="34"><path d="M20 2 L36 36 L20 28 L4 36 Z" fill="#1688ff" stroke="white" stroke-width="2.5" stroke-linejoin="round"/></svg></div>`,iconSize:[34,34],iconAnchor:[17,17]});
+    if(window.currentGpsMarker){window.currentGpsMarker.setLatLng([lat,lng]);window.currentGpsMarker.setIcon(icon);}
+    else window.currentGpsMarker=L.marker([lat,lng],{icon,interactive:true,zIndexOffset:1000}).addTo(map).bindPopup('Tu posición y dirección de movimiento');
+  }
+  function startGpsWatch(){
+    if(!navigator.geolocation||gpsWatchId!==null)return;
+    gpsWatchId=navigator.geolocation.watchPosition(pos=>{
+      const next={lat:pos.coords.latitude,lng:pos.coords.longitude};
+      let heading=pos.coords.heading;
+      if(!Number.isFinite(heading)&&lastGpsPosition){const moved=map.distance([lastGpsPosition.lat,lastGpsPosition.lng],[next.lat,next.lng]);if(moved>2)heading=bearingBetween(lastGpsPosition,next);}
+      if(Number.isFinite(heading))showGpsArrow(next.lat,next.lng,heading);
+      lastGpsPosition=next;
+    },()=>{}, {enableHighAccuracy:true,maximumAge:1500,timeout:15000});
+  }
+  function openModal(id){$(id).classList.add('open');}
+  function closeModal(id){$(id).classList.remove('open');}
+  document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',()=>closeModal(btn.dataset.close)));
+  document.querySelectorAll('.modal-backdrop').forEach(backdrop=>backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeModal(backdrop.id);}));
+  $('moreMenuBtn').onclick=()=>{const open=$('quickMenu').classList.toggle('open');$('moreMenuBtn').setAttribute('aria-expanded',String(open));};
+  $('closeFullMenu').onclick=()=>closeQuickMenu();
+  function closeQuickMenu(){$('quickMenu').classList.remove('open');$('moreMenuBtn').setAttribute('aria-expanded','false');}
+  $('openPointsBtn').onclick=()=>{closeQuickMenu();render();openModal('pointsModal');};
+  $('openFiltersBtn').onclick=()=>{closeQuickMenu();renderSpeciesFilters();openModal('filtersModal');};
+  $('openOsmBtn').onclick=()=>{closeQuickMenu();$('osmInput').click();};
+  $('osmInfoBtn').onclick=()=>{closeQuickMenu();openModal('osmInfoModal');};
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeQuickMenu();});
+
+  $('addBtn').onclick=()=>{
+    $('deleteEditingPoint').style.display='none';
+    openModal('addModal');
+    if(!navigator.geolocation){alert('Este navegador no ofrece geolocalización.');return;}
+    picking=false;editId=null;pendingCoords=null;
+    $('coordsHint').textContent='Obteniendo tu ubicación GPS…';
+    $('mapStatus').textContent='Buscando tu posición…';
+    $('addBtn').disabled=true;
+    navigator.geolocation.getCurrentPosition(pos=>{
+      pendingCoords={lat:pos.coords.latitude,lng:pos.coords.longitude};
+      $('addBtn').disabled=false;
+      map.setView([pendingCoords.lat,pendingCoords.lng],19);
+      const initialHeading=Number.isFinite(pos.coords.heading)?pos.coords.heading:0;
+      showGpsArrow(pendingCoords.lat,pendingCoords.lng,initialHeading);startGpsWatch();
+      window.currentGpsMarker.bindPopup('Ubicación capturada para el nuevo punto').openPopup();
+      const accuracy=Math.round(pos.coords.accuracy);
+      $('coordsHint').textContent=`Ubicación GPS capturada: ${pendingCoords.lat.toFixed(6)}, ${pendingCoords.lng.toFixed(6)} · precisión aproximada ±${accuracy} m. Ya puedes guardar el punto.`;
+      $('mapStatus').textContent=`Ubicación obtenida · precisión ±${accuracy} m`;
+      $('autoNamePreview').textContent='Ubicación capturada. El nombre se generará automáticamente al guardar.';
+    },err=>{
+      $('addBtn').disabled=false;
+      const msg=err.code===1?'Permiso de ubicación denegado. Activa el permiso de ubicación para Oso Onddo! en los ajustes del navegador.':err.code===2?'No se pudo determinar tu ubicación. Comprueba que el GPS esté activado y vuelve a intentarlo.':'La ubicación tardó demasiado. Inténtalo de nuevo en un lugar con mejor señal GPS.';
+      $('coordsHint').textContent=msg;$('mapStatus').textContent='No se pudo obtener el GPS';alert(msg);
+    },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+  };
+  map.on('click',e=>{if(!picking)return;pendingCoords={lat:e.latlng.lat,lng:e.latlng.lng};picking=false;$('coordsHint').textContent=`Ubicación elegida: ${pendingCoords.lat.toFixed(6)}, ${pendingCoords.lng.toFixed(6)}`;$('autoNamePreview').textContent='Ubicación seleccionada. El nombre se generará automáticamente al guardar.';});
+  $('savePoint').onclick=()=>{if(!pendingCoords){alert('Pulsa “Añadir punto” para capturar tu ubicación GPS antes de guardar.');return;}const now=new Date();const pad=n=>String(n).padStart(2,'0');const autoName=editId?(points.find(x=>x.id===editId)?.name||`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} - ${pad(now.getHours())}:${pad(now.getMinutes())}`):`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} - ${pad(now.getHours())}:${pad(now.getMinutes())}`;const p={id:editId||('p-'+Date.now()),name:autoName,species:$('pointSpecies').value,date:$('pointDate').value||isoToday,units:Math.max(1,Number($('pointUnits').value)||1),notes:$('pointNotes').value.trim(),lat:pendingCoords.lat,lng:pendingCoords.lng};if(editId){points=points.map(x=>x.id===editId?p:x);}else points.push(p);saveLocal();editId=null;picking=false;$('pointNotes').value='';$('pointUnits').value=1;$('autoNamePreview').textContent='Se asignará con la fecha y hora al guardar.';$('coordsHint').textContent='Punto guardado. Pulsa “Añadir punto” para marcar otro.';render();closeModal('addModal');};
+  $('deleteEditingPoint').onclick=()=>{if(!editId)return;const id=editId;editId=null;pendingCoords=null;picking=false;closeModal('addModal');window.deletePoint(id);$('deleteEditingPoint').style.display='none';};
+  $('cancelEdit').onclick=()=>{$('deleteEditingPoint').style.display='none';editId=null;picking=false;pendingCoords=null;$('autoNamePreview').textContent='Se asignará con la fecha y hora al guardar.';$('pointNotes').value='';$('coordsHint').textContent='Pulsa “Añadir punto” para capturar automáticamente tu ubicación GPS.';closeModal('addModal');};
+  ['from','to'].forEach(which=>{$(`${which}Preset`).onchange=()=>{$(`${which}Date`).style.display=$(`${which}Preset`).value==='custom'?'block':'none';if($(`${which}Preset`).value==='custom'&&!$(`${which}Date`).value)$(`${which}Date`).value=isoToday;renderSpeciesFilters();};});
+  $('applyFilters').onclick=()=>{render();closeModal('filtersModal');};$('resetFilters').onclick=()=>{$('fromPreset').value='';$('toPreset').value='';$('fromDate').value='';$('toDate').value='';$('fromDate').style.display='none';$('toDate').style.display='none';document.querySelectorAll('[data-filter-species]').forEach(x=>x.checked=true);render();};
+  $('heatBtn').onclick=()=>{heatVisible=!heatVisible;$('heatBtn').classList.toggle('active',heatVisible);$('heatBtn').textContent=heatVisible?'◉ Probabilidad':'○ Probabilidad';if(heatLayer._map)heatLayer._reset();};
+  $('mapToggleBtn').onclick=()=>{baseMapVisible=!baseMapVisible;$('mapToggleBtn').classList.toggle('active',baseMapVisible);updateBaseVisibility();};
+  $('pointsToggleBtn').onclick=()=>{pointsVisible=!pointsVisible;$('pointsToggleBtn').classList.toggle('active',pointsVisible);render();};
+  $('openCartographyBtn').onclick=()=>{closeQuickMenu();openModal('cartographyModal');renderOsmList();};
+  $('openProbabilityBtn').onclick=()=>{closeQuickMenu();$('probSpecies').innerHTML=Object.keys(speciesColors).map(x=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-prob-species="${x}" ${probabilitySpecies.includes(x)?'checked':''}> ${x}</label>`).join('');openModal('probabilityModal');};
+  $('saveProbability').onclick=()=>{probabilitySpecies=[...document.querySelectorAll('[data-prob-species]:checked')].map(x=>x.dataset.probSpecies);localStorage.setItem('oso_onddo_probability',JSON.stringify({probabilitySpecies}));heatLayer._reset();closeModal('probabilityModal');};
+  $('osmInfoBtn').onclick=()=>openModal('osmInfoModal');
+  $('fitBtn').onclick=()=>{if(filtered.length){const b=L.latLngBounds(filtered.map(p=>[p.lat,p.lng]));map.fitBounds(b.pad(.2),{maxZoom:17});}};
+  function centerOnGps(){
+    if(window.currentGpsMarker){map.setView(window.currentGpsMarker.getLatLng(),19);return;}
+    if(!navigator.geolocation){alert('Este navegador no ofrece geolocalización.');return;}
+    $('centerGpsBtn').disabled=true;
+    navigator.geolocation.getCurrentPosition(pos=>{const ll=[pos.coords.latitude,pos.coords.longitude];showGpsArrow(ll[0],ll[1],Number.isFinite(pos.coords.heading)?pos.coords.heading:0);startGpsWatch();map.setView(ll,19);$('centerGpsBtn').disabled=false;},()=>{$('centerGpsBtn').disabled=false;alert('No se pudo obtener la ubicación. Comprueba los permisos GPS y la conexión segura (HTTPS).');},{enableHighAccuracy:true,timeout:12000,maximumAge:5000});
+  }
+  $('centerGpsBtn').onclick=centerOnGps;
+  function exportGPX(arr,filename){const escXml=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+    const body=arr.map(p=>`  <wpt lat="${p.lat}" lon="${p.lng}"><name>${escXml(p.name)}</name><desc>${escXml([p.species,p.date,p.notes].filter(Boolean).join(' | '))}</desc><type>${escXml(p.species)}</type></wpt>`).join('\n');
+    const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Oso Onddo!" xmlns="http://www.topografix.com/GPX/1/1">\n${body}\n</gpx>`;
+    const blob=new Blob([xml],{type:'application/gpx+xml;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);}
+  $('exportAllBtn').onclick=()=>exportGPX(points,'Oso_Onddo_todos_'+new Date().toISOString().slice(0,10)+'.gpx');
+  $('exportVisibleBtn').onclick=()=>{const species=[...new Set(filtered.map(p=>p.species))];const label=species.length===1?species[0].replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]+/g,'_'):'Varias_especies';const date=isoToday;exportGPX(filtered,`${label}_${date}.gpx`);};
+  $('gpxInput').onchange=async e=>{
+    const files=[...e.target.files];let added=0;const errors=[];
+    for(const file of files){
+      try{
+        const source=await file.text();
+        const xml=new DOMParser().parseFromString(source,'application/xml');
+        const root=xml.documentElement;
+        if(!root||root.localName.toLowerCase()!=='gpx'||root.localName.toLowerCase()==='parsererror'||xml.getElementsByTagName('parsererror').length){
+          throw Error('No se reconoce un documento GPX/XML válido.');
+        }
+        let wpts=[...xml.getElementsByTagNameNS('*','wpt')];
+        if(!wpts.length)wpts=[...xml.getElementsByTagName('*')].filter(el=>el.localName&&el.localName.toLowerCase()==='wpt');
+        if(!wpts.length)throw Error('El GPX no contiene puntos de ruta (wpt).');
+        let fileAdded=0;
+        wpts.forEach((el,i)=>{
+          const lat=Number(el.getAttribute('lat')),lng=Number(el.getAttribute('lon'));
+          if(!Number.isFinite(lat)||!Number.isFinite(lng)||lat < -90||lat > 90||lng < -180||lng > 180)return;
+          const get=t=>{
+            let node=el.getElementsByTagNameNS('*',t)[0];
+            if(!node)node=[...el.getElementsByTagName('*')].find(n=>n.localName&&n.localName.toLowerCase()===t.toLowerCase());
+            return node?.textContent?.trim()||'';
+          };
+          const name=get('name')||`Punto importado ${i+1}`;
+          const desc=get('desc'),type=get('type');
+          const speciesNames=Object.keys(speciesColors);
+          let species=speciesNames.find(s=>s.toLowerCase()===type.toLowerCase())||'Sin identificar';
+          let date=isoToday,notes=desc;
+          if(desc){
+            const match=desc.match(/\b\d{4}-\d{2}-\d{2}\b/);
+            if(match)date=match[0];
+            const parts=desc.split(' | ');
+            const descSpecies=speciesNames.find(s=>s.toLowerCase()===String(parts[0]||'').trim().toLowerCase());
+            if(descSpecies){species=descSpecies;notes=parts.slice(2).join(' | ');}
+          }
+          points.push({id:'gpx-'+Date.now()+'-'+Math.random().toString(36).slice(2,9),name,species,date,notes,lat,lng});
+          added++;fileAdded++;
+        });
+        if(!fileAdded)errors.push(`${file.name}: no contiene coordenadas válidas.`);
+      }catch(err){errors.push(`${file.name}: ${err.message||'no se pudo leer el GPX'}`);}
+    }
+    saveLocal();render();$('gpxInput').value='';
+    if(errors.length)alert('Importación terminada con avisos:\\n'+errors.join('\\n'));
+    else alert(`Importación terminada: ${added} punto(s) añadidos.`);
+  };
+  $('gpsBtn').onclick=()=>{if(!navigator.geolocation){alert('Este navegador no ofrece geolocalización.');return;}navigator.geolocation.getCurrentPosition(pos=>{const ll=[pos.coords.latitude,pos.coords.longitude];map.setView(ll,19);showGpsArrow(ll[0],ll[1],Number.isFinite(pos.coords.heading)?pos.coords.heading:0);startGpsWatch();$('mapStatus').textContent='GPS activo · precisión aproximada '+Math.round(pos.coords.accuracy)+' m';},err=>alert('No se pudo obtener la ubicación. Comprueba los permisos y abre la app con conexión segura (HTTPS).'),{enableHighAccuracy:true,timeout:10000});};
+  try{const cfg=JSON.parse(localStorage.getItem('oso_onddo_probability')||'null');if(cfg){probabilitySpecies=cfg.probabilitySpecies||probabilitySpecies;}}catch(e){};renderOsmList();renderSpeciesFilters();let wakeLock=null,lastTouch=Date.now();async function requestWake(){try{if('wakeLock'in navigator)wakeLock=await navigator.wakeLock.request('screen')}catch(e){}}requestWake();const dimmer=document.createElement('div');dimmer.id='screenDimmer';document.body.appendChild(dimmer);let idleTimer;function activity(){lastTouch=Date.now();dimmer.classList.remove('on');clearTimeout(idleTimer);idleTimer=setTimeout(()=>dimmer.classList.add('on'),90000)}['pointerdown','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,activity,{passive:true}));setInterval(()=>{if(Date.now()-lastTouch>=1200000&&wakeLock){wakeLock.release().catch(()=>{});wakeLock=null}},15000);activity();render();})();
+</script>
+<script>
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>
