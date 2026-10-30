@@ -1,4 +1,4 @@
-const CACHE = "oso-onddo-shell-v5-map-controls";
+const CACHE = "oso-onddo-shell-v6-icon-zoom";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icons/boletus.svg", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
