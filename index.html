@@ -105,7 +105,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
   </div>
 </main>
   <div class="modal-backdrop" id="cartographyModal" role="dialog" aria-modal="true"><section class="modal-card"><div class="modal-head"><h3>🗺️ Cartografía</h3><button class="modal-close" data-close="cartographyModal">×</button></div><div class="row"><button class="primary" id="openOsmBtn">＋ Cargar mapa OSM</button><button class="info-btn" id="osmInfoBtn" title="Información">i</button></div><div id="osmList" style="margin-top:12px"></div><div class="sub">Los mapas se guardan en este dispositivo.</div></section></div>
-  <div class="modal-backdrop" id="probabilityModal" role="dialog" aria-modal="true"><section class="modal-card"><div class="modal-head"><h3>⚙️ Configurar Probabilidad</h3><button class="modal-close" data-close="probabilityModal">×</button></div><p><b>Calcular con estos grupos:</b></p><div id="probSpecies"></div><div class="sub">La probabilidad se calcula según las especies seleccionadas. Las zonas superpuestas aumentan la opacidad.</div><div class="gradient" style="background:linear-gradient(90deg,#f1d84a 0%,#82bd55 35%,#258f54 80%,#00c9e8 100%);height:14px"></div><div class="row"><button class="primary" id="saveProbability">Guardar configuración</button></div></section></div>
+  <div class="modal-backdrop" id="probabilityModal" role="dialog" aria-modal="true"><section class="modal-card"><div class="modal-head"><h3>⚙️ Configurar Probabilidad</h3><button class="modal-close" data-close="probabilityModal">×</button></div><p><b>Calcular con estos grupos:</b></p><div id="probSpecies"></div><div class="sub">La probabilidad se calcula según las especies seleccionadas. Las zonas superpuestas aumentan la opacidad.</div><div class="gradient" style="background:linear-gradient(90deg,#f1d84a 0%,#82bd55 35%,#258f54 80%,#00c9e8 100%);height:14px;margin-bottom:3px"></div><div class="probability-levels" style="display:grid;grid-template-columns:1fr 1fr 1fr;font-size:12px;color:var(--muted);text-align:center;margin:0 0 12px"><span style="text-align:left">Media</span><span>Alta</span><span style="text-align:right">Muy alta</span></div><div class="row"><button class="primary" id="saveProbability">Guardar configuración</button></div></section></div>
   <div class="modal-backdrop" id="osmInfoModal" role="dialog" aria-modal="true" aria-labelledby="osmInfoTitle">
     <section class="modal-card">
       <div class="modal-head"><h3 id="osmInfoTitle">ℹ️ Mapas locales</h3><button class="modal-close" data-close="osmInfoModal" aria-label="Cerrar">×</button></div>
@@ -204,14 +204,30 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
     _draw:function(){
       const ctx=this._canvas.getContext('2d');const w=this._canvas.width,h=this._canvas.height;
       ctx.clearRect(0,0,w,h);if(!heatVisible||!w||!h)return;
-      // Acumula la opacidad de todos los círculos por píxel; la suma se limita al 95%.
+      // La probabilidad siempre utiliza el historial completo, no los puntos filtrados.
+      // Cada punto aporta un degradado radial; las aportaciones se suman hasta un 95%.
       const accum=new Float32Array(w*h);
-      filtered.filter(p=>probabilitySpecies.includes(p.species)).forEach(p=>{
+      const now=new Date();now.setHours(0,0,0,0);
+      points.filter(p=>probabilitySpecies.includes(p.species)).forEach(p=>{
+        const marked=new Date((p.date||isoToday)+'T00:00:00');
+        if(Number.isNaN(marked.getTime()))return;
+        marked.setHours(0,0,0,0);
+        const ageDays=Math.max(0,Math.floor((now-marked)/86400000));
+        let centerOpacity,edgeOpacity,annualSteps=0;
+        if(ageDays<7){centerOpacity=.80;edgeOpacity=.20;}
+        else if(ageDays<28){centerOpacity=.70;edgeOpacity=.10;}
+        else{
+          annualSteps=now.getFullYear()-marked.getFullYear();
+          const anniversary=new Date(marked);anniversary.setFullYear(marked.getFullYear()+annualSteps);
+          if(now<anniversary)annualSteps--;
+          annualSteps=Math.max(0,annualSteps);
+          if(annualSteps>=6)return;
+          centerOpacity=Math.max(0,.60-.10*annualSteps);edgeOpacity=0;
+        }
         const c=this._map.latLngToContainerPoint([p.lat,p.lng]);
         const units=Math.max(1,Number(p.units)||1);
-        const age=Math.max(0,(Date.now()-new Date((p.date||isoToday)+'T00:00:00').getTime())/(365.25*86400000));
-        const decay=Math.pow(.9,Math.floor(age));
-        const metres=15*(1+.05*(units-1))*decay;
+        const sizeDecay=Math.pow(.9,Math.floor(ageDays/365.25));
+        const metres=15*(1+.05*(units-1))*sizeDecay;
         const edge=this._map.latLngToContainerPoint([p.lat,p.lng+metres/(111320*Math.cos(p.lat*Math.PI/180))]);
         const r=Math.max(1,Math.abs(edge.x-c.x));
         const minX=Math.max(0,Math.floor(c.x-r)),maxX=Math.min(w-1,Math.ceil(c.x+r));
@@ -220,7 +236,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
           const dx=(x+.5-c.x)/r,dy=(y+.5-c.y)/r,d=Math.sqrt(dx*dx+dy*dy);
           if(d>1)continue;
           const radial=Math.max(0,1-d);
-          const a=(.02+.78*radial)*decay;
+          const a=edgeOpacity+(centerOpacity-edgeOpacity)*radial;
           const idx=y*w+x;accum[idx]=Math.min(.95,accum[idx]+a);
         }
       });
