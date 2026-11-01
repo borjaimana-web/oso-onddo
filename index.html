@@ -123,7 +123,12 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
   $('pointDate').value = isoToday;
   const speciesColors = {'Hongo (Boletus)':'#75513b','Esnegorri (Níscalo)':'#ee7628','Xixa (Rebozuelo)':'#e7b522','Gibela (Rúsula)':'#8064d8','Sin identificar':'#2c9b68','Puntos de Interés':'#d4a017'};
   const speciesAliases = {'Hongo':'Hongo (Boletus)','Boletus':'Hongo (Boletus)','Níscalo':'Esnegorri (Níscalo)','Niscalo':'Esnegorri (Níscalo)','Esnegorri':'Esnegorri (Níscalo)','Ziza':'Xixa (Rebozuelo)','Rebozuelo':'Xixa (Rebozuelo)','Xixa':'Xixa (Rebozuelo)','Gibela':'Gibela (Rúsula)','Rúsula':'Gibela (Rúsula)','Rusula':'Gibela (Rúsula)','Senderuela':'Gibela (Rúsula)'};
-  const canonicalSpecies = value => speciesAliases[String(value||'').trim()] || value;
+  const canonicalSpecies = value => {
+    const raw=String(value||'').trim();
+    if(speciesAliases[raw]) return speciesAliases[raw];
+    const key=Object.keys(speciesAliases).find(k=>k.toLowerCase()===raw.toLowerCase());
+    return key?speciesAliases[key]:raw;
+  };
   let points = [];
   try { points = JSON.parse(localStorage.getItem('oso_onddo_points') || '[]') || []; } catch(e) { points=[]; }
   // Elimina los puntos de demostración de versiones anteriores.
@@ -255,13 +260,13 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
   function selectedFilterSpecies(){return [...document.querySelectorAll('[data-filter-species]:checked')].map(x=>x.dataset.filterSpecies);}
   function renderSpeciesFilters(){const box=$('speciesFilterChecks');if(!box)return;const selected=selectedFilterSpecies();box.innerHTML=Object.keys(speciesColors).map(sp=>`<label><input type="checkbox" data-filter-species="${esc(sp)}" ${!selected.length||selected.includes(sp)?'checked':''}> ${esc(sp)}</label>`).join('');}
   function dateIso(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
-  function presetDate(v){if(!v)return '';if(v==='custom')return null;const d=new Date();d.setHours(0,0,0,0);if(v==='year')d.setFullYear(d.getFullYear()-1);if(v==='3months')d.setMonth(d.getMonth()-3);if(v==='month')d.setMonth(d.getMonth()-1);if(v==='week')d.setDate(d.getDate()-7);if(v==='yesterday')d.setDate(d.getDate()-1);return dateIso(d);}
+  function presetDate(v){if(!v)return '';if(v==='custom')return null;const d=new Date();d.setHours(0,0,0,0);if(v==='year')d.setFullYear(d.getFullYear()-1);if(v==='3months')d.setMonth(d.getMonth()-3);if(v==='month')d.setMonth(d.getMonth()-1);if(v==='week')d.setDate(d.getDate()-7);if(v==='today')return dateIso(d);if(v==='yesterday')d.setDate(d.getDate()-1);return dateIso(d);}
   function filterDate(which){const preset=$(`${which}Preset`).value;return preset==='custom'?$(`${which}Date`).value:presetDate(preset);}
   function filteredPoints(){const from=filterDate('from'),to=filterDate('to'),selected=selectedFilterSpecies();return points.filter(p=>p.species==='Puntos de Interés'||((!from||p.date>=from)&&(!to||p.date<=to)&&(!selected.length||selected.includes(p.species))));}
   function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function render(){
     filtered=filteredPoints();markers.forEach(m=>map.removeLayer(m));markers=[];
-    if(pointsVisible)filtered.forEach(p=>{const color=speciesColors[p.species]||'#2c9b68';const shapes={
+    if(pointsVisible)filtered.forEach(p=>{p.species=canonicalSpecies(p.species);const color=speciesColors[p.species]||'#2c9b68';const shapes={
         'Hongo (Boletus)':'<path d="M5 17 C5 8 11 3 20 3 C29 3 35 8 35 17 Z"/><path d="M17 17 L15 33 Q20 36 25 33 L23 17 Z"/>',
         'Esnegorri (Níscalo)':'<path d="M5 14 Q8 5 20 5 Q32 5 35 14 L31 18 Q20 12 9 18 Z"/><path d="M16 17 L13 32 Q20 35 27 32 L24 17 Z"/>',
         'Xixa (Rebozuelo)':'<path d="M4 19 Q9 8 20 8 Q31 8 36 19 Q29 17 25 21 Q20 17 15 21 Q10 17 4 19 Z"/><path d="M17 20 L15 33 Q20 35 25 33 L23 20 Z"/>',

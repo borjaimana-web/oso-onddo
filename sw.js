@@ -1,4 +1,4 @@
-const CACHE = "oso-onddo-v7-especies-filtros";
+const CACHE = "oso-onddo-v8-especies-filtros-20261101";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icons/boletus.svg", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -9,6 +9,17 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
+  const isAppShell = event.request.mode === "navigate" || url.pathname.endsWith("/index.html") || url.pathname.endsWith("/sw.js");
+  if (isAppShell) {
+    event.respondWith(fetch(event.request, { cache: "no-store" }).then(response => {
+      if (response.ok && !url.pathname.endsWith("/sw.js")) {
+        const copy = response.clone();
+        caches.open(CACHE).then(cache => cache.put(event.request, copy));
+      }
+      return response;
+    }).catch(() => caches.match(event.request).then(cached => cached || caches.match("./index.html"))));
+    return;
+  }
   event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
     if (response.ok) { const copy = response.clone(); caches.open(CACHE).then(cache => cache.put(event.request, copy)); }
     return response;
