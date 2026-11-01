@@ -300,7 +300,7 @@ footer{text-align:center;color:#708178;font-size:11px;padding:0 14px 16px}
   function updateCompass(heading){
     if(!Number.isFinite(heading))return;
     const needle=document.getElementById('compassNeedle');
-    if(needle)needle.setAttribute('transform',`rotate(${-heading} 12 13)`);
+    if(needle)needle.setAttribute('transform',`rotate(${-heading} 50 50)`);
   }
   // Usa la brújula del dispositivo cuando está disponible; el norte permanece arriba.
   function startCompass(){
